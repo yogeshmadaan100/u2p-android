@@ -1,6 +1,10 @@
 package com.u2p.ui.component;
 
-public class ItemFile {
+import java.io.Serializable;
+
+public class ItemFile implements Serializable{
+
+	private static final long serialVersionUID = 8858451646619645528L;
 	protected long id;
 	protected String rutaImagen;
 	protected String name;
@@ -80,6 +84,4 @@ public class ItemFile {
 	public void setUser(String user) {
 		this.user = user;
 	}
-	
-	
 }
