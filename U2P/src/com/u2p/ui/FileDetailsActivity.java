@@ -28,6 +28,8 @@ public class FileDetailsActivity extends Activity {
         TextView rating = (TextView)findViewById(R.id.fileRating);
         ImageButton image = (ImageButton)findViewById(R.id.fileImageButton);
         
+        this.setTitle(item.getName());
+        
         owner.append(" "+item.getUser());
         size.append(" "+item.getSize());
         type.append(" "+".ALGO");
