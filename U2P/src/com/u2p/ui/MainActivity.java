@@ -3,6 +3,7 @@ package com.u2p.ui;
 import java.util.ArrayList;
 
 import android.app.ActionBar;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.ItemFile;
+import com.u2p.ui.component.LoginDialogFragment;
 
 public class MainActivity extends FragmentActivity implements ActionBar.OnNavigationListener {
 
@@ -46,12 +48,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
                         }),
                 this);
         
+        //loginDialog();	//Descomentar para sacar un login dialog
+        
         ListView lv = (ListView) findViewById(R.id.listView);
         ArrayList<ItemFile> items = obtenerItems();
         ItemFileAdapter adapter = new ItemFileAdapter(this, items);
         
         lv.setAdapter(adapter);
-        
     }
 
     private ArrayList<ItemFile> obtenerItems() {
@@ -73,6 +76,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
     	items.add(new ItemFile(12, "drawable/file", "grgw.txt", "arian", "12Kb", "15/20"));
     	return items;
     }
+    
+    public void loginDialog() {
+        DialogFragment newFragment = new LoginDialogFragment();
+        newFragment.show(getFragmentManager(), "loginDialog");
+    }
+    
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
@@ -95,7 +104,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
 
     
 
-   // @Override
     public boolean onNavigationItemSelected(int position, long id) {
         // When the given tab is selected, show the tab contents in the container
     	Fragment fragment = new DummySectionFragment();
