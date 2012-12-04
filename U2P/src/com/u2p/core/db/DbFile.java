@@ -1,4 +1,4 @@
-package com.u2p.db;
+package com.u2p.core.db;
 
 public class DbFile {
 	private long id;
