@@ -1,4 +1,4 @@
-package com.u2p.db;
+package com.u2p.core.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
