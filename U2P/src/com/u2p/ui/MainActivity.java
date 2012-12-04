@@ -4,14 +4,18 @@ import java.util.ArrayList;
 
 import android.app.ActionBar;
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,7 +32,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
@@ -47,12 +51,21 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
                                 //getString(R.string.title_section3),
                         }),
                 this);
-        
-        //loginDialog();	//Descomentar para sacar un login dialog
-        
+                
         ListView lv = (ListView) findViewById(R.id.listView);
         ArrayList<ItemFile> items = obtenerItems();
         ItemFileAdapter adapter = new ItemFileAdapter(this, items);
+                
+        lv.setOnItemClickListener(new OnItemClickListener() {
+
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				ItemFile item = (ItemFile) parent.getItemAtPosition(position);
+				Intent intent = new Intent(getBaseContext(), FileDetailsActivity.class);
+				intent.putExtra("CALLER_ITEM", item);
+		    	startActivity(intent);
+			}
+		});
         
         lv.setAdapter(adapter);
     }
@@ -60,24 +73,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
     private ArrayList<ItemFile> obtenerItems() {
     	ArrayList<ItemFile> items = new ArrayList<ItemFile>();
     	
-    	items.add(new ItemFile(1, "drawable/file", "archivo.txt", "arianjm", "12Kb", "15/20"));
-    	items.add(new ItemFile(2, "drawable/file", "archiv231o.txt", "almartin", "12Kb", "15/20"));
-    	items.add(new ItemFile(3, "drawable/file", "weq.txt", "almartin", "45633", "15/20"));
-    	items.add(new ItemFile(4, "drawable/file", "grgw.txt", "arian", "12Kb", "15/20"));
+    	items.add(new ItemFile(1, "drawable/binary", "archivo.bin", "arianjm", "12Kb", "15/20"));
+    	items.add(new ItemFile(2, "drawable/doc", "archiv231o.doc", "almartin", "12Kb", "15/20"));
+    	items.add(new ItemFile(3, "drawable/file", "weq.unk", "almartin", "45633", "15/20"));
+    	items.add(new ItemFile(4, "drawable/txt", "grgw.txt", "arian", "12Kb", "15/20"));
     	
-    	items.add(new ItemFile(5, "drawable/file", "archivo.txt", "arianjm", "12Kb", "15/20"));
-    	items.add(new ItemFile(6, "drawable/file", "archiv231o.txt", "almartin", "12Kb", "15/20"));
-    	items.add(new ItemFile(7, "drawable/file", "weq.txt", "almartin", "45633", "15/20"));
-    	items.add(new ItemFile(8, "drawable/file", "grgw.txt", "arian", "12Kb", "15/20"));
+    	items.add(new ItemFile(5, "drawable/image", "archivo.png", "arianjm", "12Kb", "15/20"));
+    	items.add(new ItemFile(6, "drawable/script", "archiv231o.sh", "almartin", "12Kb", "15/20"));
+    	items.add(new ItemFile(7, "drawable/xls", "weq.xls", "almartin", "45633", "15/20"));
+    	items.add(new ItemFile(8, "drawable/box", "grgw.zip", "arian", "12Kb", "15/20"));
     	
-    	items.add(new ItemFile(9, "drawable/file", "archivo.txt", "arianjm", "12Kb", "15/20"));
-    	items.add(new ItemFile(10, "drawable/file", "archiv231o.txt", "almartin", "12Kb", "15/20"));
-    	items.add(new ItemFile(11, "drawable/file", "weq.txt", "almartin", "45633", "15/20"));
-    	items.add(new ItemFile(12, "drawable/file", "grgw.txt", "arian", "12Kb", "15/20"));
+    	items.add(new ItemFile(9, "drawable/box", "archivo.rar", "arianjm", "12Kb", "15/20"));
+    	items.add(new ItemFile(10, "drawable/xls", "archiv231o.xls", "almartin", "12Kb", "15/20"));
+    	items.add(new ItemFile(11, "drawable/pdf", "weq.pdf", "almartin", "45633", "15/20"));
+    	items.add(new ItemFile(12, "drawable/source", "grgw.src", "arian", "12Kb", "15/20"));
     	return items;
     }
     
-    public void loginDialog() {
+    public void loginDialog(MenuItem item) {
         DialogFragment newFragment = new LoginDialogFragment();
         newFragment.show(getFragmentManager(), "loginDialog");
     }

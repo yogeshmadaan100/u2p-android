@@ -6,7 +6,8 @@
     <item android:id="@+id/add_group"
         android:icon="@drawable/social_add_group"
         android:title="@string/add_group"
-        android:showAsAction="ifRoom|withText"/>
+        android:showAsAction="ifRoom|withText"
+        android:onClick="loginDialog"/>
     <item android:id="@+id/add_file"
         android:icon="@drawable/collections_collection"
         android:title="@string/add_file"
