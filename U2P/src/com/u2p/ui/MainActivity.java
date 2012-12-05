@@ -1,6 +1,7 @@
 package com.u2p.ui;
 
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -25,23 +26,26 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.u2p.core.db.DbDataSource;
+import com.u2p.events.ActivityEventsGenerator;
+import com.u2p.events.ServerEventsListener;
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.ItemFile;
 import com.u2p.ui.component.LoginDialogFragment;
 
 public class MainActivity extends FragmentActivity implements ActionBar.OnNavigationListener, 
-LoginDialogFragment.LoginDialogListener{
+LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DbDataSource datasource;
 	private DialogFragment newFragment;
-	private String data;
+	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
     private static final String TAG="MainActivity";
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        data=" ";
+        eventsGenerator=new ActivityEventsGenerator();
         // Set up the action bar.
         actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
@@ -56,7 +60,6 @@ LoginDialogFragment.LoginDialogListener{
         
         if(!datasource.usersExist()){
         	loginDialog();
-        	System.out.println(data);
         }
         
         List<String> groups=datasource.getAllGroups();
@@ -194,7 +197,7 @@ LoginDialogFragment.LoginDialogListener{
 		EditText userText=(EditText)dialog.getDialog().findViewById(R.id.dialogUsername);
 		EditText groupText=(EditText)dialog.getDialog().findViewById(R.id.dialogGroupName);
 		EditText passText=(EditText)dialog.getDialog().findViewById(R.id.dialogPassword);
-		Log.i(TAG, "loginPositive");
+		
 		String user,group,pass;
 		
 		user=userText.getText().toString();
@@ -216,10 +219,19 @@ LoginDialogFragment.LoginDialogListener{
 
 	public void onLoginNegativeClick(DialogFragment dialog) {
 		// TODO Auto-generated method stub
-		Log.i(TAG, "loginNegative");
 		if(!datasource.usersExist()){
+			Log.i(TAG, "Cancel create initial group, closing application");
 			finish();
 		}
 		
+	}
+
+	public void handleServerEventsListener(EventObject e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void launchEventToClients(EventObject event){
+		eventsGenerator.addEvent(event);
 	}
 }
