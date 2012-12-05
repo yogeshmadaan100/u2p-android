@@ -192,6 +192,19 @@ public class DbDataSource {
 		return user;
 	}
 	
+	public String getHashGroup(String group){
+		if(this.tableExist(group)){
+			Cursor cursor=database.query(DbU2P.TABLE_USERS,new String[]{DbU2P.COLUM_HASH},
+					DbU2P.COLUM_GROUP+" = "+group, null,null,null,null);
+			
+			cursor.moveToFirst();
+			String hash=cursor.getString(0);
+			cursor.close();
+			return hash;
+		}
+		return null;
+	}
+	
 	public List<DbFile> getFilesGroup(String group){
 		if(this.tableExist(group)){
 			List<DbFile> files=new ArrayList<DbFile>();

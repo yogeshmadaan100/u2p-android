@@ -8,12 +8,19 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.EventObject;
+import java.util.List;
 
 import android.util.Log;
 
-import com.u2p.messages.Hello;
+import com.u2p.core.db.DbDataSource;
+import com.u2p.core.db.DbUser;
+import com.u2p.events.ActivityEvents;
+import com.u2p.events.ActivityEventsListener;
+import com.u2p.messages.ACK;
+import com.u2p.messages.Authentication;
 
-public class Client extends Thread{
+public class Client extends Thread implements ActivityEventsListener{
 	private Socket socket;
 	private InetAddress address;
 	private int port;
@@ -21,10 +28,15 @@ public class Client extends Thread{
 	private ObjectOutputStream oos;
 	private InputStream in;
 	private ObjectInputStream ois;
+	private DbDataSource datasource;
+	private static final String TAG="Client";
+	private boolean end;
 	
-	public Client(InetAddress address, int port){
+	public Client(InetAddress address, int port, DbDataSource datasource){
 		this.address=address;
 		this.port=port;
+		this.datasource=datasource;
+		this.end=false;
 	}
 	
 	public void run(){
@@ -39,16 +51,32 @@ public class Client extends Thread{
 			ois=new ObjectInputStream(in);
 			
 			//Mandamos primer mensaje
-			Hello message=new Hello("Hello Service");
-			oos.writeObject(message);
-			Log.i("Client","Send message hello to "+socket.getInetAddress());
+			DbUser user=datasource.getUser(1);
+			Authentication autms=new Authentication(user.getUser());
+			List<String> userGroups=datasource.getAllGroups();
+			
+			String hashtmp;
+			for(String group:userGroups){
+				hashtmp=datasource.getHashGroup(group);
+				if(hashtmp!=null){
+					autms.addGroup(group, hashtmp);
+				}
+			}
+			
+			oos.writeObject(autms);
+			Log.i(TAG,"Send Authentication message to "+socket.getInetAddress());
 			//Esperamos ack
 			
-			Object aux=ois.readObject();
-			
-			if(aux instanceof Hello){
-				Hello messageACK=(Hello)aux;
-				Log.i("Client","Received messageACK from "+socket.getInetAddress());
+			while(!end){
+				Object aux=ois.readObject();
+				
+				if(aux instanceof ACK){
+					ACK ack=(ACK)aux;
+					Log.d(TAG,"Received ACK type: "+ack.getACKType());
+				}
+				if(aux instanceof Authentication){
+					
+				}
 			}
 			
 			ois.close();
@@ -62,6 +90,16 @@ public class Client extends Thread{
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	public void handleActivityEventsListener(EventObject e) {
+		// TODO Auto-generated method stub
+		ActivityEvents event=(ActivityEvents)e;
+		
+		if(event.getAddress().toString().equals(this.address.toString())){
+			//Manejamos el evento
+			
 		}
 	}
 
