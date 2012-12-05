@@ -1,13 +1,16 @@
 package com.u2p.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,41 +20,48 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.u2p.core.db.DbDataSource;
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.ItemFile;
 import com.u2p.ui.component.LoginDialogFragment;
 
-public class MainActivity extends FragmentActivity implements ActionBar.OnNavigationListener {
-
+public class MainActivity extends FragmentActivity implements ActionBar.OnNavigationListener, 
+LoginDialogFragment.LoginDialogListener{
+	private DbDataSource datasource;
+	private DialogFragment newFragment;
+	private String data;
+	private ActionBar actionBar;
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-
+    private static final String TAG="MainActivity";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+        data=" ";
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        //Creamos db
+        datasource=new DbDataSource(this);
+        try{
+        	datasource.open();
+        }catch(SQLException e){
+        	Log.e(TAG,"SQL Exception opening database");
+        }
+        
+        if(!datasource.usersExist()){
+        	loginDialog();
+        	System.out.println(data);
+        }
+        
+        List<String> groups=datasource.getAllGroups();
+		drawActionBar(groups);
 
-        // Set up the dropdown list navigation in the action bar.
-        actionBar.setListNavigationCallbacks(
-                // Specify a SpinnerAdapter to populate the dropdown list.
-                new ArrayAdapter(
-                        actionBar.getThemedContext(),
-                        android.R.layout.simple_list_item_1,
-                        android.R.id.text1,
-                        new String[]{
-                                getString(R.string.title_section1),
-                                //getString(R.string.title_section2),
-                                //getString(R.string.title_section3),
-                        }),
-                this);
-                
         ListView lv = (ListView) findViewById(R.id.listView);
         ArrayList<ItemFile> items = obtenerItems();
         ItemFileAdapter adapter = new ItemFileAdapter(this, items);
@@ -70,6 +80,26 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
         lv.setAdapter(adapter);
     }
 
+	private void drawActionBar(List<String> groups){
+	      String[] groupTitle;
+        if(groups.size()>0){
+        	groupTitle=new String[groups.size()];
+        	groups.toArray(groupTitle);
+        }else{
+        	groupTitle=new String[1];
+        	groupTitle[0]="No groups";
+        }
+        
+        // Set up the dropdown list navigation in the action bar.
+        actionBar.setListNavigationCallbacks(
+                // Specify a SpinnerAdapter to populate the dropdown list.
+                new ArrayAdapter(
+                        actionBar.getThemedContext(),
+                        android.R.layout.simple_list_item_1,
+                        android.R.id.text1,
+                        groupTitle),
+                this);
+	}
     private ArrayList<ItemFile> obtenerItems() {
     	ArrayList<ItemFile> items = new ArrayList<ItemFile>();
     	
@@ -91,7 +121,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
     }
     
     public void loginDialog(MenuItem item) {
-        DialogFragment newFragment = new LoginDialogFragment();
+        newFragment = new LoginDialogFragment();
+        newFragment.show(getFragmentManager(), "loginDialog");
+    }
+    
+    public void loginDialog() {
+        newFragment = new LoginDialogFragment();
         newFragment.show(getFragmentManager(), "loginDialog");
     }
     
@@ -148,4 +183,38 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
             return textView;
         }
     }
+
+	public void onLoginPositiveClick(DialogFragment dialog) {
+		// TODO Auto-generated method stub
+		EditText userText=(EditText)dialog.getDialog().findViewById(R.id.dialogUsername);
+		EditText groupText=(EditText)dialog.getDialog().findViewById(R.id.dialogGroupName);
+		EditText passText=(EditText)dialog.getDialog().findViewById(R.id.dialogPassword);
+		Log.i(TAG, "loginPositive");
+		String user,group,pass;
+		
+		user=userText.getText().toString();
+		group=groupText.getText().toString();
+		pass=passText.getText().toString();
+		
+		if(user==null || group==null || pass==null){
+			Log.e(TAG,"Null data user, group or pass");
+			this.loginDialog();
+		}else{
+			if(datasource.addUser(user,group, pass)){
+				Log.d(TAG, "New user add "+user+" "+group+" "+pass);
+			}else{
+				Log.e(TAG, "New user error");
+				this.loginDialog();
+			}
+		}
+	}
+
+	public void onLoginNegativeClick(DialogFragment dialog) {
+		// TODO Auto-generated method stub
+		Log.i(TAG, "loginNegative");
+		if(!datasource.usersExist()){
+			finish();
+		}
+		
+	}
 }
