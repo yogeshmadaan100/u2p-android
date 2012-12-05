@@ -5,21 +5,52 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 
 import android.util.Log;
 
-import com.u2p.messages.Hello;
+import com.u2p.core.db.DbDataSource;
+import com.u2p.messages.ACK;
+import com.u2p.messages.Authentication;
+import com.u2p.messages.FileAnswer;
+import com.u2p.messages.FileRequest;
+import com.u2p.messages.ListAnswer;
+import com.u2p.messages.ListRequest;
+import com.u2p.ui.R;
 
 public class ServerClient extends Thread{
+	private InetAddress address;
 	private Socket socket;
 	private OutputStream out;
 	private ObjectOutputStream oos;
 	private InputStream in;
 	private ObjectInputStream ois;
+	private boolean end;
+	private static final String TAG="ServerClient";
+	private DbDataSource datasource;
+	private Server parent;
 	
-	public ServerClient(Socket socket){
+	public ServerClient(Socket socket,InetAddress address, DbDataSource datasource, Server parent){
 		this.socket=socket;
+		this.address=address;
+		this.datasource=datasource;
+		this.parent=parent;
+		end=false;
+	}
+	
+	public InetAddress getAdress(){
+		return this.address;
+	}
+	
+	public void close() throws IOException{
+		//Deberiamos enviar un ACK para cerrar la conexión con el otro extremo
+		Log.d(TAG, "Close comunication");
+		ois.close();
+		in.close();
+		oos.close();
+		out.close();
+		socket.close();
 	}
 	
 	public void run(){
@@ -30,21 +61,71 @@ public class ServerClient extends Thread{
 			in=socket.getInputStream();
 			ois=new ObjectInputStream(in);
 			try{
-				Object aux=null;
-				aux=ois.readObject();
-				if(aux instanceof Hello){
-					Hello message=(Hello)aux;
-					Log.i("ServerClient", "Received hello message: "+message);
-				
-					Hello messageACK=new Hello("Hello ACK");
-					oos.writeObject(messageACK);
+				while(!end){
+					Object aux=null;
+					aux=ois.readObject();
+					if(aux instanceof ACK){
+						ACK ack=(ACK)aux;
+						Log.d(TAG,"Received ACK, type:"+ack.getACKType()+" from "+address);
+						if(ack.getACKType()==-1){
+							//Fin comuniación
+							end=true;
+							Log.d(TAG,"End comunication with "+address);
+						}
+						continue;
+					}
+					if(aux instanceof Authentication){
+						Log.d(TAG,"Received Authentication message from "+address);
+						Authentication aut=(Authentication)aux;
+						//Comparar los grupos que se reciben para ver si pertenecemos a alguno de esos grupos
+						//Si pertenecemos a alguno lo guardamos como cliente
+							//parent.addActiveClient(address,this);
+							//Enviamos un message Authentication
+							//Lanzar evento al activity principal de nuevo cliente
+						
+						//Si no enviamos ACK para acabar la comunicación
+	
+						Log.d(TAG,"Send Authentication message to "+address);
+						
+						//Si además de servidor también es el que oferta el servicio, cada vez que reciba un mensaje 
+						//de estos tendrá que avisar a todos los clientes (menos al último) que le han contactado con los datos 
+						//del último cliente que se haya conectado
+						//if(parent.isService())
+						continue;
+					}
+					if(aux instanceof FileRequest){
+						Log.d(TAG,"Received FileRequest message from "+address);
+						//Petición para el envio de un archivo
+						FileRequest fileR=(FileRequest)aux;
+						//Comprobamos que el archivo existe
+						//Si da tiempo lo ciframos
+						//Buscamos archivo
+						//Lo enviamos con un FileAnswer
+						Log.d(TAG,"Send FileAnswer message to "+address);
+						continue;
+					}
+					if(aux instanceof FileAnswer){
+						Log.d(TAG,"Received FileAnswer message from "+address);
+						//Recibimos un archivo
+						FileAnswer fileA=(FileAnswer)aux;
+						//Si da tiempo lo desciframos
+						//Escribimos archivo
+						//Enviamos ACK
+						Log.d(TAG,"Send FileAnswer ACK message to "+address);
+						continue;
+					}
+					if(aux instanceof ListRequest){
+						Log.d(TAG,"Received ListRequest message from "+address);
+						
+						Log.d(TAG,"Send ListAnswer message to "+address);
+					}
+					if(aux instanceof ListAnswer){
+						Log.d(TAG,"Received ListAnswer message from "+address);
+						
+						Log.d(TAG,"Send ListAnswer ACK message to "+address);
+					}
 				}
-				
-				ois.close();
-				in.close();
-				oos.close();
-				out.close();
-				socket.close();
+				this.close();
 			}catch(ClassNotFoundException e){
 				Log.e("ServerClient","ClassNotFoundException");
 			}
