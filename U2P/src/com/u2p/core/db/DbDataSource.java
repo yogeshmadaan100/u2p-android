@@ -97,6 +97,11 @@ public class DbDataSource {
 		database.delete(DbU2P.TABLE_USERS,DbU2P.COLUM_ID+" = "+id,null);
 	}
 	
+	public void deleteUser(int id){
+		Log.d(DbDataSource.class.getName(),"User deleted with id: "+id);
+		database.delete(DbU2P.TABLE_USERS,DbU2P.COLUM_ID+" = "+id,null);
+	}
+	
 	public boolean deleteGroup(String group){
 		if(this.tableExist(group)){
 			database.execSQL("DROP TABLE IF EXISTS "+group+";");
