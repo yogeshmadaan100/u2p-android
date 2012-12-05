@@ -49,6 +49,14 @@ public class FileDetailsActivity extends Activity {
     	Toast.makeText(getApplicationContext(), "Download", Toast.LENGTH_SHORT).show();
     }
     
+    public void onRateGoodClick(MenuItem item){
+    	Toast.makeText(getApplicationContext(), "Rate Good action", Toast.LENGTH_SHORT).show();
+    }
+    
+    public void onRateBadClick(MenuItem item){
+    	Toast.makeText(getApplicationContext(), "Rate Bad action", Toast.LENGTH_SHORT).show();
+    }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

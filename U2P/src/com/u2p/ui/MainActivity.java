@@ -130,6 +130,11 @@ LoginDialogFragment.LoginDialogListener{
         newFragment.show(getFragmentManager(), "loginDialog");
     }
     
+    public void addFiles(MenuItem item){
+    	Intent intent = new Intent(getBaseContext(), FileSelectionActivity.class);
+    	startActivity(intent);
+    }
+    
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {

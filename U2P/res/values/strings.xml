@@ -28,5 +28,9 @@
     <string name="fileSize">File size:</string>
     <string name="fileRating">File rating:</string>
     <string name="fileImageDescription">File type image and download button</string>
+    <string name="rating_good">Good</string>
+    <string name="rating_bad">Bad</string>
+    <string name="title_activity_file_selection">Files to Share</string>
+    <string name="share_files">Share</string>
 
 </resources>

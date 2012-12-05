@@ -8,6 +8,8 @@
         android:targetSdkVersion="16" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -26,6 +28,13 @@
         <activity
             android:name=".FileDetailsActivity"
             android:label="@string/title_activity_file_details" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.u2p.ui.MainActivity" />
+        </activity>
+        <activity
+            android:name=".FileSelectionActivity"
+            android:label="@string/title_activity_file_selection" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.u2p.ui.MainActivity" />
