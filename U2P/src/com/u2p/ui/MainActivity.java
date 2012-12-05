@@ -24,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.u2p.core.db.DbDataSource;
 import com.u2p.events.ActivityEventsGenerator;
@@ -62,11 +63,10 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	loginDialog();
         }
         
-        List<String> groups=datasource.getAllGroups();
-		drawActionBar(groups);
+        this.refreshGroups();
 
         ListView lv = (ListView) findViewById(R.id.listView);
-        ArrayList<ItemFile> items = obtenerItems();
+        ArrayList<ItemFile> items = getItems();
         ItemFileAdapter adapter = new ItemFileAdapter(this, items);
                 
         lv.setOnItemClickListener(new OnItemClickListener() {
@@ -82,7 +82,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         
         lv.setAdapter(adapter);
     }
-
+    
+    private void refreshGroups(){
+        List<String> groups=datasource.getAllGroups();
+		drawActionBar(groups);
+    }
 	private void drawActionBar(List<String> groups){
 	      String[] groupTitle;
         if(groups.size()>0){
@@ -103,7 +107,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
                         groupTitle),
                 this);
 	}
-    private ArrayList<ItemFile> obtenerItems() {
+    private ArrayList<ItemFile> getItems() {
     	ArrayList<ItemFile> items = new ArrayList<ItemFile>();
     	
     	items.add(new ItemFile(1, "drawable/binary", "archivo.bin", "arianjm", "12Kb", "15/20"));
@@ -206,12 +210,15 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		
 		if(user==null || group==null || pass==null){
 			Log.e(TAG,"Null data user, group or pass");
+			Toast.makeText(getApplicationContext(), "Data not valid",Toast.LENGTH_SHORT).show();
 			this.loginDialog();
 		}else{
 			if(datasource.addUser(user,group, pass)){
 				Log.d(TAG, "New user add "+user+" "+group+" "+pass);
+				this.refreshGroups();
 			}else{
 				Log.e(TAG, "New user error");
+				Toast.makeText(getApplicationContext(), "New user error",Toast.LENGTH_SHORT).show();
 				this.loginDialog();
 			}
 		}
