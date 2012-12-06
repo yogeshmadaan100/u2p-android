@@ -8,6 +8,7 @@ import android.app.ActionBar;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.SQLException;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -26,8 +27,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.u2p.core.comm.Client;
+import com.u2p.core.comm.Server;
 import com.u2p.core.db.DbDataSource;
+import com.u2p.core.nsd.NsdHelper;
 import com.u2p.events.ActivityEventsGenerator;
+import com.u2p.events.ChangesClientEvents;
 import com.u2p.events.ServerEventsListener;
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.ItemFile;
@@ -37,10 +42,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.OnNaviga
 LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DbDataSource datasource;
 	private DialogFragment newFragment;
+	private NsdHelper mNsdHelper;
+	private Server server;
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
     private static final String TAG="MainActivity";
+    public static final int PORT=2664;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,17 +62,25 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         //Creamos db
         datasource=new DbDataSource(this);
         try{
+        	Log.d(TAG,"Openning database");
         	datasource.open();
         }catch(SQLException e){
         	Log.e(TAG,"SQL Exception opening database");
         }
         
         if(!datasource.usersExist()){
+        	Log.e(TAG,"No default user");
         	loginDialog();
         }
         
         this.refreshGroups();
-
+        //Comunicaciones
+		mNsdHelper = new NsdHelper(this);
+		mNsdHelper.initializeResolveListener();
+		Log.d(TAG,"NSD: Initialize Resolve Listener");
+		server=new Server(PORT,datasource,this);
+		server.start();
+		
         ListView lv = (ListView) findViewById(R.id.listView);
         ArrayList<ItemFile> items = getItems();
         ItemFileAdapter adapter = new ItemFileAdapter(this, items);
@@ -236,9 +252,79 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	public void handleServerEventsListener(EventObject e) {
 		// TODO Auto-generated method stub
 		
+		if(e instanceof ChangesClientEvents){
+			ChangesClientEvents changes=(ChangesClientEvents)e;
+		}
+		
 	}
 	
 	public void launchEventToClients(EventObject event){
 		eventsGenerator.addEvent(event);
+	}
+	
+	public void discoverService(View v){
+		if(!mNsdHelper.isDiscovering())
+			mNsdHelper.initializeDiscoveryListener();	
+		Toast.makeText(getApplicationContext(), "Discover service...",Toast.LENGTH_SHORT).show();
+		mNsdHelper.discoverServices();
+	}
+	
+	public void connectService(View v){
+		Toast.makeText(getApplicationContext(), "Connect to service...",Toast.LENGTH_SHORT).show();
+		NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+		
+		if(service!=null){
+			Client client=new Client(service.getHost(),service.getPort(),datasource);
+			Toast.makeText(getApplicationContext(), "Connect to "+service.getServiceName()+" on port "+service.getPort(), Toast.LENGTH_SHORT).show();
+			client.start();
+		}else{
+			Toast.makeText(getApplicationContext(), "Service not found", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	public void registerService(View v){
+
+		if(!mNsdHelper.isRegistered()){
+			if(mNsdHelper.isDiscovering()) mNsdHelper.stopDiscovery();
+			mNsdHelper.initializeRegistrationListener();
+			Toast.makeText(getApplicationContext(), "Register service...",Toast.LENGTH_SHORT).show();
+			mNsdHelper.registerService(PORT);
+			server.setService(true);
+			return ;
+		}else{
+			mNsdHelper.tearDown();
+			server.setService(false);
+			mNsdHelper= new NsdHelper(this);
+			mNsdHelper.initializeResolveListener();
+
+		}
+	}
+	
+	@Override
+	protected void onPause() {
+		if (mNsdHelper != null && mNsdHelper.isDiscovering()) {
+			mNsdHelper.stopDiscovery();
+			if(mNsdHelper.isDiscovering())
+				Log.d(TAG,"OnPause(): no stop");
+			else
+				Log.d(TAG,"OnPause(): stop");
+		}
+		super.onPause();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		if(mNsdHelper.isRegistered()){
+			mNsdHelper.tearDown();
+			Log.d(TAG,"OnDestroy(): tead down");
+		}
+		if(mNsdHelper.isDiscovering()){
+			mNsdHelper.stopDiscovery();
+			Log.d(TAG,"OnDestroy(): stop discovey()");
+		}
+		
+		server.close();
+		Log.d(TAG,"OnDestroy(): close server");
+		super.onDestroy();
 	}
 }

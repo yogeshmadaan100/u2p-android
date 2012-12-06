@@ -13,11 +13,9 @@ import android.util.Log;
 import com.u2p.core.db.DbDataSource;
 import com.u2p.messages.ACK;
 import com.u2p.messages.Authentication;
-import com.u2p.messages.FileAnswer;
 import com.u2p.messages.FileRequest;
-import com.u2p.messages.ListAnswer;
 import com.u2p.messages.ListRequest;
-import com.u2p.ui.R;
+import com.u2p.messages.VoteFile;
 
 public class ServerClient extends Thread{
 	private InetAddress address;
@@ -45,6 +43,10 @@ public class ServerClient extends Thread{
 	
 	public void close() throws IOException{
 		//Deberiamos enviar un ACK para cerrar la conexión con el otro extremo
+		if(!end){
+			ACK ack=new ACK(Server.ACK_END);
+			oos.writeObject(ack);
+		}
 		Log.d(TAG, "Close comunication");
 		ois.close();
 		in.close();
@@ -67,10 +69,14 @@ public class ServerClient extends Thread{
 					if(aux instanceof ACK){
 						ACK ack=(ACK)aux;
 						Log.d(TAG,"Received ACK, type:"+ack.getACKType()+" from "+address);
-						if(ack.getACKType()==-1){
-							//Fin comuniación
-							end=true;
-							Log.d(TAG,"End comunication with "+address);
+						
+						switch(ack.getACKType()){
+							case Server.ACK_END:
+								end=true;
+								Log.d(TAG,"End comunication with "+address);
+								break;
+							default:
+								break;
 						}
 						continue;
 					}
@@ -104,26 +110,18 @@ public class ServerClient extends Thread{
 						Log.d(TAG,"Send FileAnswer message to "+address);
 						continue;
 					}
-					if(aux instanceof FileAnswer){
-						Log.d(TAG,"Received FileAnswer message from "+address);
-						//Recibimos un archivo
-						FileAnswer fileA=(FileAnswer)aux;
-						//Si da tiempo lo desciframos
-						//Escribimos archivo
-						//Enviamos ACK
-						Log.d(TAG,"Send FileAnswer ACK message to "+address);
-						continue;
-					}
 					if(aux instanceof ListRequest){
 						Log.d(TAG,"Received ListRequest message from "+address);
 						
 						Log.d(TAG,"Send ListAnswer message to "+address);
+						continue;
 					}
-					if(aux instanceof ListAnswer){
-						Log.d(TAG,"Received ListAnswer message from "+address);
-						
-						Log.d(TAG,"Send ListAnswer ACK message to "+address);
+					if(aux instanceof VoteFile){
+						Log.d(TAG,"Received VoteFile message from "+address);
+						//Comprobar grupo y fichero
+						//votar
 					}
+					
 				}
 				this.close();
 			}catch(ClassNotFoundException e){
