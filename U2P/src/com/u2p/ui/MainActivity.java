@@ -1,5 +1,6 @@
 package com.u2p.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -47,6 +48,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+    private static final int ADD_FILES = 1;
+    private static final int DOWNLOAD_FILE = 2;
+    private static final String FILES_TO_UPLOAD = "upload";
+    private static final String FILE_TO_DOWNLOAD = "download";
+    private static final String RATING = "rating";
     private static final String TAG="MainActivity";
     public static final int PORT=2664;
     
@@ -91,8 +97,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 					long id) {
 				ItemFile item = (ItemFile) parent.getItemAtPosition(position);
 				Intent intent = new Intent(getBaseContext(), FileDetailsActivity.class);
+				//Añadir el objeto que llama a la activity al intent
 				intent.putExtra("CALLER_ITEM", item);
-		    	startActivity(intent);
+				//Añadir el nombre de la clase al intent
+				intent.putExtra("CALLER_CLASS", getIntent().getComponent().getClassName());
+		    	startActivityForResult(intent, DOWNLOAD_FILE);
 			}
 		});
         
@@ -155,7 +164,26 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     
     public void addFiles(MenuItem item){
     	Intent intent = new Intent(getBaseContext(), FileSelectionActivity.class);
-    	startActivity(intent);
+    	startActivityForResult(intent, ADD_FILES);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    	//Resultado recibido, ver que tipo de resultado es y si se recibió bien
+    	if(requestCode == ADD_FILES && resultCode == RESULT_OK){
+    		ArrayList<File> files = (ArrayList<File>) data.getSerializableExtra(FILES_TO_UPLOAD);
+    		Log.d(TAG, files.toString());
+    	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
+    		ItemFile item = (ItemFile) data.getSerializableExtra(FILE_TO_DOWNLOAD);
+    		Log.d(TAG, "Download request for: "+item.getName());
+    		int rating = data.getIntExtra(RATING, 0);
+    		if(rating != 0)
+    			Log.d(TAG, "Rating +"+rating);
+    		else
+    			Log.d(TAG, "File was not rated");
+    	}
+    	else
+    		Log.d(TAG, "Something went wrong. ReqC: "+requestCode+" ResC: "+resultCode);
     }
     
     @Override

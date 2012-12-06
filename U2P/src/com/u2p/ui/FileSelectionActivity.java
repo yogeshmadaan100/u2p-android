@@ -1,8 +1,10 @@
 package com.u2p.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.NavUtils;
@@ -14,10 +16,11 @@ import android.widget.ListView;
 
 public class FileSelectionActivity extends Activity {
 
-	private String[] mFileList;
+	private File[] mFileList;
     private File mPath = new File(Environment.getExternalStorageDirectory() + "//A-U2P-files");
-    private String mChosenFile;
     private static final String TAG = "FileSelection";
+    private static final String FILES_TO_UPLOAD = "upload";
+    private ArrayList<File> resultFileList;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,11 +30,27 @@ public class FileSelectionActivity extends Activity {
         
         loadFileList();
         
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, mFileList);
+        ArrayAdapter adapter = new ArrayAdapter<File>(this, android.R.layout.simple_list_item_multiple_choice, mFileList);
         ListView lv = (ListView)findViewById(R.id.fileSelectionList);
-        lv.setAdapter(adapter);
-        //Para obtener los seleccionados
-        //lv.getCheckedItemIds();
+        lv.setAdapter(adapter);        
+    }
+    
+    public void onUploadClick(MenuItem item){
+    	Log.d(TAG, "Upload clicked, finishing activity");
+        
+    	ListView lv = (ListView)findViewById(R.id.fileSelectionList);
+        resultFileList = new ArrayList<File>();
+        
+        for(int i = 0 ; i < lv.getCount() ; i++){
+        	if(lv.isItemChecked(i)){
+        		resultFileList.add((File)lv.getItemAtPosition(i));
+        	}
+        }
+        Log.d(TAG, "Files: "+resultFileList.toString());
+        Intent result = this.getIntent();
+        result.putExtra(FILES_TO_UPLOAD, resultFileList);
+        setResult(Activity.RESULT_OK, result);
+    	finish();
     }
 
     private void loadFileList() {
@@ -49,11 +68,10 @@ public class FileSelectionActivity extends Activity {
             Log.e(TAG, "unable to write on the sd card " + e.toString());
         }
         if(mPath.exists()) {
-            mFileList = mPath.list();
-            Log.d(TAG, "File list created: "+mPath.list().toString());
+        	mFileList = mPath.listFiles();
+            Log.d(TAG, "File list created");
         }
         else {
-            mFileList= new String[0];
             Log.e(TAG, "File list not created");
         }
     }
