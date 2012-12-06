@@ -5,6 +5,11 @@ import java.io.Serializable;
 public class ACK implements Serializable{
 	private int type;
 	/**
+	 * -1 Fin Comunicación
+	 * 
+	 * 
+	 * 
+	 * 
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
