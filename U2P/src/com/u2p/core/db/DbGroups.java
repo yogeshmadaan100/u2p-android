@@ -12,7 +12,7 @@ public class DbGroups {
 	}
 	
 	public boolean addGroup(String group){
-		if(groups.containsKey(group)){
+		if(!groups.containsKey(group)){
 			groups.put(group,new ArrayList<DbFile>());
 			return true;
 		}

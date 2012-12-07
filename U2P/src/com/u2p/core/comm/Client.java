@@ -104,6 +104,7 @@ public class Client extends Thread implements ActivityEventsListener{
 					continue;
 				}
 				if(aux instanceof Authentication){
+					Log.d(TAG,"Received Authentication message from "+address);
 					continue;
 				}
 				if(aux instanceof FileAnswer){
