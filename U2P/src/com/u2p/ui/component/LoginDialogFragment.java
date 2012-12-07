@@ -36,8 +36,16 @@ public class LoginDialogFragment extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 
+		Bundle args = getArguments();
+		boolean first = args.getBoolean("FIRST_LOGIN");
+		int layout;
+		if(first)
+			layout = R.layout.first_login_dialog;
+		else{
+			layout = R.layout.login_dialog;
+		}
 		builder.setTitle(R.string.loginDialogTitle);
-		builder.setView(inflater.inflate(R.layout.login_dialog, null))
+		builder.setView(inflater.inflate(layout, null))
 			.setPositiveButton(R.string.login, new DialogInterface.OnClickListener() {
 				
 				public void onClick(DialogInterface dialog, int which) {
