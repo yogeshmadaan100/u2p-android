@@ -228,9 +228,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		
 		String user,group,pass;
 		
-		if(userView instanceof TextView){
+		if(datasource.usersExist()){
+			Log.d(TAG, "User exists, create group");
 			user = datasource.getUser(1).getUser();
 		}else{
+			Log.d(TAG, "User does not existe, create user and group");
 			user = ((EditText) userView).getText().toString();
 		}
 		group=groupText.getText().toString();
