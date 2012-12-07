@@ -123,6 +123,7 @@ public class Client extends Thread implements ActivityEventsListener{
 					ListCommons listCom=new ListCommons(eventsGenerator,address,commons);
 					eventsGenerator.addEvent(listCom);
 					Log.d(TAG,"Received Authentication message from "+address);
+					this.requestList("g1");
 					continue;
 				}
 				if(aux instanceof FileAnswer){
