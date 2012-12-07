@@ -180,7 +180,9 @@ public class ServerClient extends Thread{
 							List<ItemFile> items=new ArrayList<ItemFile>();
 							
 							for(DbFile file:files){
-								items.add(new ItemFile(file,this.userName,datasource.getFileType(file.getType())));
+								ItemFile auxItem=new ItemFile(file,this.userName,datasource.getFileType(file.getType()));
+								auxItem.setAddress(address);
+								items.add(auxItem);
 							}
 							ListAnswer listA=new ListAnswer((ArrayList<ItemFile>)items,group);
 							oos.writeObject(listA);

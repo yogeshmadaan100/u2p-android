@@ -2,6 +2,7 @@ package com.u2p.ui.component;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.InetAddress;
 
 import com.u2p.core.db.DbFile;
 
@@ -14,6 +15,8 @@ public class ItemFile implements Serializable{
 	protected String user;
 	protected String size;
 	protected String rating;
+	private String group;
+	private InetAddress address;
 	
 	public ItemFile(long id, String rutaImagen, String name, String user,
 			String size, String rating) {
@@ -24,6 +27,18 @@ public class ItemFile implements Serializable{
 		this.size = size;
 		this.rating = rating;
 	}
+	
+	public ItemFile(long id, String rutaImagen, String name, String user,
+			String size, String rating,String group) {
+		this.id = id;
+		this.rutaImagen = rutaImagen;
+		this.name = name;
+		this.user = user;
+		this.size = size;
+		this.rating = rating;
+		this.group=group;
+	}
+
 
 	public ItemFile(DbFile file, String user, String rutaImagen){
 		this.id = file.getId();
@@ -35,6 +50,7 @@ public class ItemFile implements Serializable{
 		int total = file.getPositive() + file.getNegative();
 		int rat = file.getPositive() - file.getNegative();
 		this.rating = Integer.toString(rat)+"/"+Integer.toString(total);
+		this.group=file.getGroup();
 	}
 	
 	public ItemFile(){
@@ -50,6 +66,22 @@ public class ItemFile implements Serializable{
 		this.name = name;
 		this.size = size;
 		this.rating = rating;
+	}
+
+	public void setAddress(InetAddress address){
+		this.address=address;
+	}
+	
+	public InetAddress getAddress(){
+		return this.address;
+	}
+	
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
 	}
 
 	public long getId() {

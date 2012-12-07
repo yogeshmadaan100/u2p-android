@@ -30,10 +30,17 @@ import com.u2p.core.db.DbDataSource;
 import com.u2p.core.db.DbFile;
 import com.u2p.core.nsd.NsdHelper;
 import com.u2p.events.ActivityEventsGenerator;
+import com.u2p.events.FileEvent;
+import com.u2p.events.ListCommons;
+
 import com.u2p.events.NewClientEvent;
+
+import com.u2p.events.NewGroupList;
+
 import com.u2p.events.ServerEventsListener;
 import com.u2p.ui.R.id;
 import com.u2p.ui.adapters.ItemFileAdapter;
+import com.u2p.ui.component.GroupListFile;
 import com.u2p.ui.component.ItemFile;
 import com.u2p.ui.component.LoginDialogFragment;
 
@@ -43,6 +50,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
+	private GroupListFile groupListFiles;
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
@@ -63,6 +71,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        groupListFiles=new GroupListFile();
         //Creamos db
         datasource=new DbDataSource(this);
         try{
@@ -183,6 +192,10 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     			Log.d(TAG, "Rating +"+rating);
     		else
     			Log.d(TAG, "File was not rated");
+    		
+    		FileEvent fileEvent=new FileEvent(eventsGenerator,item.getAddress());
+    		fileEvent.setGroupAndFile(item.getGroup(),item.getName());
+    		eventsGenerator.addEvent(fileEvent);
     	}
     	else
     		Log.d(TAG, "Something went wrong. ReqC: "+requestCode+" ResC: "+resultCode);
@@ -231,6 +244,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		// TODO Auto-generated method stub
 		
 		if(e instanceof NewClientEvent){
+			Log.d(TAG,"Receive event NewClient");
 			NewClientEvent newClient=(NewClientEvent)e;
 			//Pedir lista de ficheros al cliente
 			Client client=(Client)server.getActiveClient(newClient.getAddress());
@@ -244,6 +258,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 					this.launchEventToClients(event);
 				}*/
 			}
+		}
+		if(e instanceof NewGroupList){
+			Log.d(TAG,"Receive event NewGroupList");
+			NewGroupList newGroup=(NewGroupList)e;
+			groupListFiles.addListFileToGroup(newGroup.getGroup(),newGroup.getFiles());
+			
+		}
+		if(e instanceof ListCommons){
+			Log.d(TAG,"Receive event ListCommons");
+			ListCommons list=(ListCommons)e;
+			server.addGroupCommon(list.getAddress(),list.getCommons());
 		}
 		
 	}
