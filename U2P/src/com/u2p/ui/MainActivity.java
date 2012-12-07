@@ -50,6 +50,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
+	private String user;
 	private GroupListFile groupListFiles;
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
@@ -173,17 +174,19 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     	//Resultado recibido, ver que tipo de resultado es y si se recibió bien
     	if(requestCode == ADD_FILES && resultCode == RESULT_OK){
     		ArrayList<File> files = (ArrayList<File>) data.getSerializableExtra(FILES_TO_UPLOAD);
-    		
+    		String group;
+    		ArrayList<ItemFile> list=new ArrayList<ItemFile>();
+    		List<String> groups=datasource.getAllGroups();
+			group = groups.get(actionBar.getSelectedNavigationIndex());
     		for(File file : files){
-    			List<String> groups=datasource.getAllGroups();
-    			String group = groups.get(actionBar.getSelectedNavigationIndex());
-
     			String fileName = file.getName();
     			String uri = file.getAbsolutePath();
-    			
     			datasource.addFileToGroup(group, fileName, uri, 0, 0);
-    			drawItems(group,groupListFiles.getListFile(group));
+    			DbFile f=datasource.getFile(group, fileName);
+    			list.add(new ItemFile(f,datasource.getUser(1).getUser(),datasource.getFileType(f.getType())));
     		}
+    		groupListFiles.addListFileToGroup(group,list);
+    		drawItems(group,groupListFiles.getListFile(group));
     		Log.d(TAG, files.toString());
     	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
     		ItemFile item = (ItemFile) data.getSerializableExtra(FILE_TO_DOWNLOAD);
