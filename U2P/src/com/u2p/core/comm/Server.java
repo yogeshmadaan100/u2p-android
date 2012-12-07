@@ -112,7 +112,7 @@ public class Server extends Thread{
 	}
 	
 	public Thread getActiveClient(InetAddress client){
-		if(!activeClients.containsKey(client)){
+		if(activeClients.containsKey(client)){
 			return activeClients.get(client);
 		}
 		return null;

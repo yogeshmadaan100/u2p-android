@@ -248,8 +248,8 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			NewClientEvent newClient=(NewClientEvent)e;
 			//Pedir lista de ficheros al cliente
 			Client client=(Client)server.getActiveClient(newClient.getAddress());
-			Log.d(TAG,"Active client "+client.getAddress());
 			if(client!=null){
+				Log.d(TAG,"Active client "+client.getAddress());
 				eventsGenerator.addListener(client);
 				server.addGroupCommon(newClient.getAddress(),newClient.getCommons());
 				List<String> groupsCommons=newClient.getCommons();
