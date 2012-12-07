@@ -1,6 +1,9 @@
 package com.u2p.ui.component;
 
+import java.io.File;
 import java.io.Serializable;
+
+import com.u2p.core.db.DbFile;
 
 public class ItemFile implements Serializable{
 
@@ -22,6 +25,18 @@ public class ItemFile implements Serializable{
 		this.rating = rating;
 	}
 
+	public ItemFile(DbFile file, String user, String rutaImagen){
+		this.id = file.getId();
+		this.rutaImagen = rutaImagen;
+		this.name = file.getName();
+		this.user = user;
+		File f = new File(file.getUri());
+		this.size = Integer.toString((int)f.length());
+		int total = file.getPositive() + file.getNegative();
+		int rat = file.getPositive() - file.getNegative();
+		this.rating = Integer.toString(rat)+"/"+Integer.toString(total);
+	}
+	
 	public ItemFile(){
 		this.rutaImagen = "";
 		this.name="";
