@@ -266,7 +266,7 @@ public class DbDataSource {
 	public DbFile getFile(String group,String name){
 		if(this.tableExist(group)){
 			Cursor cursor=database.query(group,
-					new String[] {DbU2P.GROUP_COLUM_URI},DbU2P.GROUP_COLUM_NAME+"=?",new String[]{name},null,null,null);
+					allColumnsGroup,DbU2P.GROUP_COLUM_NAME+"=?",new String[]{name},null,null,null);
 			cursor.moveToFirst();
 			DbFile file=this.cursorToFile(cursor);
 			cursor.close();
