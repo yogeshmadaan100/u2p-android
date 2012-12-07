@@ -1,5 +1,6 @@
 package com.u2p.core.db;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 public class DbDataSource {
@@ -23,12 +25,20 @@ public class DbDataSource {
 			,DbU2P.GROUP_COLUM_URI,DbU2P.GROUP_COLUM_POSITIVE,DbU2P.GROUP_COLUM_NEGATIVE};
 	
 	private HashMap<String, String> typeMap = new HashMap<String,String>();
-
+	private static final String mainDir = "//A-U2P-files";
 	
 	public DbDataSource(Context context){
 		dbHelper=new DbU2P(context);
 		groups=new DbGroups();
 		createTypeMap();
+		
+		File mainDirectory = new File(Environment.getExternalStorageDirectory()+mainDir);
+		if(!mainDirectory.exists()){
+			if(mainDirectory.mkdir())
+				Log.d(DbDataSource.class.getName(), "Main dir: '"+mainDir+"' created");
+			else
+				Log.e(DbDataSource.class.getName(), "Failed to create main dir: '"+mainDir+"'");
+		}
 	}
 	
 	public void open()throws SQLException{
@@ -69,6 +79,14 @@ public class DbDataSource {
 		
 		database.execSQL(CREATE_TABLE_GROUP);
 		Log.d(DbDataSource.class.getName(),"New group created: "+name);
+		
+		File groupDir = new File(Environment.getExternalStorageDirectory()+"//A-U2P-files/"+name);
+		if(!groupDir.exists()){
+			if(groupDir.mkdir())
+				Log.d(DbDataSource.class.getName(), "Group dir: '"+name+"' created");
+			else
+				Log.e(DbDataSource.class.getName(), "Failed to create group dir: '"+name+"'");
+		}
 		return true;
 	}
 	
@@ -365,5 +383,9 @@ public class DbDataSource {
 		typeMap.put("pdf", "drawable/pdf");
 		typeMap.put("xls", "drawable/xls");
 		typeMap.put("txt", "drawable/txt");
+	}
+
+	public static String getMaindir() {
+		return mainDir;
 	}
 }

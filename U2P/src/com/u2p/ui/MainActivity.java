@@ -96,7 +96,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		server.start();
 
     }
-    						//List<ItemFile> itemsFile
+
     private void drawItems(String group){
 		
         ListView lv = (ListView) findViewById(R.id.listView);
@@ -128,19 +128,18 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         if(groups.size()>0){
         	groupTitle=new String[groups.size()];
         	groups.toArray(groupTitle);
-        }else{
-        	groupTitle=new String[1];
-        	groupTitle[0]="No groups";
+        	
+        	actionBar.setListNavigationCallbacks(
+                    // Specify a SpinnerAdapter to populate the dropdown list.
+                    new ArrayAdapter(
+                            actionBar.getThemedContext(),
+                            android.R.layout.simple_list_item_1,
+                            android.R.id.text1,
+                            groupTitle),
+                    this);
         }
         // Set up the dropdown list navigation in the action bar.
-        actionBar.setListNavigationCallbacks(
-                // Specify a SpinnerAdapter to populate the dropdown list.
-                new ArrayAdapter(
-                        actionBar.getThemedContext(),
-                        android.R.layout.simple_list_item_1,
-                        android.R.id.text1,
-                        groupTitle),
-                this);
+        
 	}
 	
     private ArrayList<ItemFile> getItems(String group) {
@@ -174,6 +173,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     	//Resultado recibido, ver que tipo de resultado es y si se recibió bien
     	if(requestCode == ADD_FILES && resultCode == RESULT_OK){
     		ArrayList<File> files = (ArrayList<File>) data.getSerializableExtra(FILES_TO_UPLOAD);
+    		
+    		for(File file : files){
+    			List<String> groups=datasource.getAllGroups();
+    			String group = groups.get(actionBar.getSelectedNavigationIndex());
+
+    			String fileName = file.getName();
+    			String uri = file.getAbsolutePath();
+    			
+    			datasource.addFileToGroup(group, fileName, uri, 0, 0);
+    			drawItems(group);
+    		}
     		Log.d(TAG, files.toString());
     	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
     		ItemFile item = (ItemFile) data.getSerializableExtra(FILE_TO_DOWNLOAD);
@@ -290,11 +300,13 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	}
 	
 	public boolean onNavigationItemSelected(int position, long id) {
-        // When the given tab is selected, show the tab contents in the container
-    	List<String> groups=datasource.getAllGroups();
-    	String group = groups.get(position);
-    	drawItems(group);
-        return true;
+		if(actionBar.getNavigationItemCount() > 0){
+			List<String> groups=datasource.getAllGroups();
+			String group = groups.get(position);
+			drawItems(group);
+			return true;
+		}else
+			return false;
     }
 	
 	@Override
@@ -316,34 +328,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
-	
-	/*private void createTypeMap(){
-		typeMap.put("exe", "drawable/binary");
-		typeMap.put("jar", "drawable/binary");
-		typeMap.put("bin", "drawable/binary");
-		
-		typeMap.put("doc", "drawable/doc");
-		typeMap.put("docx", "drawable/doc");
-		
-		typeMap.put("png", "drawable/image");
-		typeMap.put("jpg", "drawable/image");
-		typeMap.put("jpeg", "drawable/image");
-		
-		
-		typeMap.put("rar", "drawable/box");
-		typeMap.put("zip", "drawable/box");
-		typeMap.put("7zip", "drawable/box");
-		
-		typeMap.put("src", "drawable/source");
-		typeMap.put("java", "drawable/source");
-		typeMap.put("c", "drawable/source");
-		typeMap.put("cpp", "drawable/source");
-		
-		typeMap.put("sh", "drawable/script");
-		typeMap.put("pdf", "drawable/pdf");
-		typeMap.put("xls", "drawable/xls");
-		typeMap.put("txt", "drawable/txt");
-	}*/
 	
 	@Override
 	protected void onPause() {
