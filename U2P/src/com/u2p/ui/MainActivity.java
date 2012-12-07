@@ -21,6 +21,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.u2p.core.comm.Client;
@@ -165,12 +166,18 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     
 	public void loginDialog(MenuItem item) {
         newFragment = new LoginDialogFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("FIRST_LOGIN", false);
+        newFragment.setArguments(args);
         newFragment.show(getFragmentManager(), "loginDialog");
     }
     
     public void loginDialog() {
         newFragment = new LoginDialogFragment();
-        newFragment.show(getFragmentManager(), "loginDialog");
+        Bundle args = new Bundle();
+        args.putBoolean("FIRST_LOGIN", true);
+        newFragment.setArguments(args);
+        newFragment.show(getFragmentManager(), "firstLoginDialog");
     }
     
     public void addFiles(MenuItem item){
@@ -214,17 +221,18 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		Log.d(TAG, "Something went wrong. ReqC: "+requestCode+" ResC: "+resultCode);
     }
     
-    
-
 	public void onLoginPositiveClick(DialogFragment dialog) {
-		// TODO Auto-generated method stub
-		EditText userText=(EditText)dialog.getDialog().findViewById(R.id.dialogUsername);
+		View userView = dialog.getDialog().findViewById(R.id.dialogUsername);
 		EditText groupText=(EditText)dialog.getDialog().findViewById(R.id.dialogGroupName);
 		EditText passText=(EditText)dialog.getDialog().findViewById(R.id.dialogPassword);
 		
 		String user,group,pass;
 		
-		user=userText.getText().toString();
+		if(userView instanceof TextView){
+			user = datasource.getUser(1).getUser();
+		}else{
+			user = ((EditText) userView).getText().toString();
+		}
 		group=groupText.getText().toString();
 		pass=passText.getText().toString();
 		
@@ -245,7 +253,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	}
 
 	public void onLoginNegativeClick(DialogFragment dialog) {
-		// TODO Auto-generated method stub
 		if(!datasource.usersExist()){
 			Log.i(TAG, "Cancel create initial group, closing application");
 			finish();
