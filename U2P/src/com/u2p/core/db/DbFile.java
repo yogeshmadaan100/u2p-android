@@ -6,6 +6,7 @@ public class DbFile {
 	private String name;
 	private String uri;
 	private int positive,negative;
+	private String type;
 	
 	public DbFile(String name, String uri,int positive,int negative) {
 		super();
@@ -13,6 +14,13 @@ public class DbFile {
 		this.uri = uri;
 		this.positive=positive;
 		this.negative=negative;
+		this.type=createType();
+	}
+
+	private String createType() {
+		String name = getName();
+		String[] strs = name.split("\\.");
+		return strs[strs.length-1];
 	}
 
 	public int getPositive() {
@@ -66,6 +74,14 @@ public class DbFile {
 	@Override
 	public String toString() {
 		return "BdFile [id=" + id + ", name=" + name+ ", uri=" + uri + "]";
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }

@@ -3,6 +3,7 @@ package com.u2p.ui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -19,14 +20,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +32,7 @@ import android.widget.Toast;
 import com.u2p.core.comm.Client;
 import com.u2p.core.comm.Server;
 import com.u2p.core.db.DbDataSource;
+import com.u2p.core.db.DbFile;
 import com.u2p.core.nsd.NsdHelper;
 import com.u2p.events.ActivityEventsGenerator;
 import com.u2p.events.ChangesClientEvents;
@@ -45,6 +44,7 @@ import com.u2p.ui.component.LoginDialogFragment;
 public class MainActivity extends FragmentActivity implements ActionBar.OnNavigationListener, 
 LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DbDataSource datasource;
+	private HashMap<String, String> typeMap = new HashMap<String,String>();
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
@@ -81,6 +81,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	Log.e(TAG,"No default user");
         	loginDialog();
         }
+        createTypeMap();
         
         this.refreshGroups();
         //Comunicaciones
@@ -91,12 +92,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		server.start();
 
     }
-    
-    private void drawItems(List<ItemFile> itemsFile){
+    						//List<ItemFile> itemsFile
+    private void drawItems(String group){
 		
         ListView lv = (ListView) findViewById(R.id.listView);
-        ItemFileAdapter adapter = new ItemFileAdapter(this, new ArrayList<ItemFile>(itemsFile));
-                
+        ItemFileAdapter adapter = new ItemFileAdapter(this, getItems(group));
         lv.setOnItemClickListener(new OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -118,6 +118,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         List<String> groups=datasource.getAllGroups();
 		drawActionBar(groups);
     }
+    
 	private void drawActionBar(List<String> groups){
 	      String[] groupTitle;
         if(groups.size()>0){
@@ -127,7 +128,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	groupTitle=new String[1];
         	groupTitle[0]="No groups";
         }
-        
         // Set up the dropdown list navigation in the action bar.
         actionBar.setListNavigationCallbacks(
                 // Specify a SpinnerAdapter to populate the dropdown list.
@@ -138,27 +138,19 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
                         groupTitle),
                 this);
 	}
-    private ArrayList<ItemFile> getItems() {
+	
+    private ArrayList<ItemFile> getItems(String group) {
+    	Log.d(TAG, "Getting files from group: "+group);
     	ArrayList<ItemFile> items = new ArrayList<ItemFile>();
+    	List<DbFile> files = datasource.getFilesGroup(group);
     	
-    	items.add(new ItemFile(1, "drawable/binary", "archivo.bin", "arianjm", "12Kb", "15/20"));
-    	items.add(new ItemFile(2, "drawable/doc", "archiv231o.doc", "almartin", "12Kb", "15/20"));
-    	items.add(new ItemFile(3, "drawable/file", "weq.unk", "almartin", "45633", "15/20"));
-    	items.add(new ItemFile(4, "drawable/txt", "grgw.txt", "arian", "12Kb", "15/20"));
-    	
-    	items.add(new ItemFile(5, "drawable/image", "archivo.png", "arianjm", "12Kb", "15/20"));
-    	items.add(new ItemFile(6, "drawable/script", "archiv231o.sh", "almartin", "12Kb", "15/20"));
-    	items.add(new ItemFile(7, "drawable/xls", "weq.xls", "almartin", "45633", "15/20"));
-    	items.add(new ItemFile(8, "drawable/box", "grgw.zip", "arian", "12Kb", "15/20"));
-    	
-    	items.add(new ItemFile(9, "drawable/box", "archivo.rar", "arianjm", "12Kb", "15/20"));
-    	items.add(new ItemFile(10, "drawable/xls", "archiv231o.xls", "almartin", "12Kb", "15/20"));
-    	items.add(new ItemFile(11, "drawable/pdf", "weq.pdf", "almartin", "45633", "15/20"));
-    	items.add(new ItemFile(12, "drawable/source", "grgw.src", "arian", "12Kb", "15/20"));
+    	for(DbFile file : files){
+    		items.add(new ItemFile(file, datasource.getUser(1).getUser(), typeMap.get(file.getType())));
+    	}
     	return items;
     }
     
-    public void loginDialog(MenuItem item) {
+	public void loginDialog(MenuItem item) {
         newFragment = new LoginDialogFragment();
         newFragment.show(getFragmentManager(), "loginDialog");
     }
@@ -192,59 +184,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		Log.d(TAG, "Something went wrong. ReqC: "+requestCode+" ResC: "+resultCode);
     }
     
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
-            getActionBar().setSelectedNavigationItem(
-                    savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM,
-                getActionBar().getSelectedNavigationIndex());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
-
     
-
-    public boolean onNavigationItemSelected(int position, long id) {
-        // When the given tab is selected, show the tab contents in the container
-    	Fragment fragment = new DummySectionFragment();
-    	Bundle args = new Bundle();
-    	args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-    	fragment.setArguments(args);
-    	getSupportFragmentManager().beginTransaction()
-    		.replace(R.id.container, fragment)
-    		.commit();
-        return true;
-    }
-
-    /**
-     * A dummy fragment representing a section of the app, but that simply displays dummy text.
-     */
-    public static class DummySectionFragment extends Fragment {
-        public DummySectionFragment() {
-        }
-
-        public static final String ARG_SECTION_NUMBER = "section_number";
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            TextView textView = new TextView(getActivity());
-            textView.setGravity(Gravity.CENTER);
-            Bundle args = getArguments();
-           // textView.setText(Integer.toString(args.getInt(ARG_SECTION_NUMBER)));
-            return textView;
-        }
-    }
 
 	public void onLoginPositiveClick(DialogFragment dialog) {
 		// TODO Auto-generated method stub
@@ -331,6 +271,62 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			server.setService(true);
 			return ;
 		}
+	}
+	
+	public boolean onNavigationItemSelected(int position, long id) {
+        // When the given tab is selected, show the tab contents in the container
+    	List<String> groups=datasource.getAllGroups();
+    	String group = groups.get(position);
+    	drawItems(group);
+        return true;
+    }
+	
+	@Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
+            getActionBar().setSelectedNavigationItem(
+                    savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM,
+                getActionBar().getSelectedNavigationIndex());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+	
+	private void createTypeMap(){
+		typeMap.put("exe", "drawable/binary");
+		typeMap.put("jar", "drawable/binary");
+		typeMap.put("bin", "drawable/binary");
+		
+		typeMap.put("doc", "drawable/doc");
+		typeMap.put("docx", "drawable/doc");
+		
+		typeMap.put("png", "drawable/image");
+		typeMap.put("jpg", "drawable/image");
+		typeMap.put("jpeg", "drawable/image");
+		
+		
+		typeMap.put("rar", "drawable/box");
+		typeMap.put("zip", "drawable/box");
+		typeMap.put("7zip", "drawable/box");
+		
+		typeMap.put("src", "drawable/source");
+		typeMap.put("java", "drawable/source");
+		typeMap.put("c", "drawable/source");
+		typeMap.put("cpp", "drawable/source");
+		
+		typeMap.put("sh", "drawable/script");
+		typeMap.put("pdf", "drawable/pdf");
+		typeMap.put("xls", "drawable/xls");
+		typeMap.put("txt", "drawable/txt");
 	}
 	
 	@Override
