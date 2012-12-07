@@ -17,7 +17,8 @@ import com.u2p.ui.component.ItemFile;
 public class FileDetailsActivity extends Activity {
 
 	/* El rating solo funciona si le das a descargar para salir
-	 * obviamente esto no es lo que queremos */
+	 * obviamente esto no es lo que queremos, cuando damos a volver 
+	 * no se envia el resultado */
 	
 	private static final String TAG = "FileDetailsActivity";
     private static final String FILE_TO_DOWNLAOD = "download";
@@ -63,8 +64,8 @@ public class FileDetailsActivity extends Activity {
     public void onImageClick(View v){
     	result.putExtra(FILE_TO_DOWNLAOD, item);
     	setResult(Activity.RESULT_OK, result);
-    	if(rating!=0)
-    		result.putExtra(RATING, rating);
+    	/*if(rating!=0)
+    		result.putExtra(RATING, rating);*/
     	Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
     	Log.d(TAG, "Download started");
     	finish();
@@ -72,12 +73,13 @@ public class FileDetailsActivity extends Activity {
     
     public void onRateGoodClick(MenuItem item){
     	rating = 1;
-    	Toast.makeText(getApplicationContext(), "Rate Good action", Toast.LENGTH_SHORT).show();
+    	result.putExtra(RATING, rating);
+    	Toast.makeText(getApplicationContext(), "+1", Toast.LENGTH_SHORT).show();
     }
     
     public void onRateBadClick(MenuItem item){
     	rating = -1;
-    	Toast.makeText(getApplicationContext(), "Rate Bad action", Toast.LENGTH_SHORT).show();
+    	Toast.makeText(getApplicationContext(), "-1", Toast.LENGTH_SHORT).show();
     }
     
     @Override
