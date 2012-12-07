@@ -3,6 +3,7 @@ package com.u2p.core.db;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -21,9 +22,13 @@ public class DbDataSource {
 	private String[] allColumnsGroup={DbU2P.GROUP_COLUM_ID,DbU2P.GROUP_COLUM_NAME
 			,DbU2P.GROUP_COLUM_URI,DbU2P.GROUP_COLUM_POSITIVE,DbU2P.GROUP_COLUM_NEGATIVE};
 	
+	private HashMap<String, String> typeMap = new HashMap<String,String>();
+
+	
 	public DbDataSource(Context context){
 		dbHelper=new DbU2P(context);
 		groups=new DbGroups();
+		createTypeMap();
 	}
 	
 	public void open()throws SQLException{
@@ -280,5 +285,39 @@ public class DbDataSource {
 		DbFile file=new DbFile(cursor.getString(1),cursor.getString(2),cursor.getInt(3),cursor.getInt(4));
 		file.setId(cursor.getLong(0));
 		return file;
-	}	
+	}
+	
+	public String getFileType(String type){
+		if(typeMap.containsKey(type))
+			return typeMap.get(type);
+		else
+			return "drawable/file";
+	}
+	
+	private void createTypeMap(){
+		typeMap.put("exe", "drawable/binary");
+		typeMap.put("jar", "drawable/binary");
+		typeMap.put("bin", "drawable/binary");
+		
+		typeMap.put("doc", "drawable/doc");
+		typeMap.put("docx", "drawable/doc");
+		
+		typeMap.put("png", "drawable/image");
+		typeMap.put("jpg", "drawable/image");
+		typeMap.put("jpeg", "drawable/image");
+		
+		typeMap.put("rar", "drawable/box");
+		typeMap.put("zip", "drawable/box");
+		typeMap.put("7zip", "drawable/box");
+		
+		typeMap.put("src", "drawable/source");
+		typeMap.put("java", "drawable/source");
+		typeMap.put("c", "drawable/source");
+		typeMap.put("cpp", "drawable/source");
+		
+		typeMap.put("sh", "drawable/script");
+		typeMap.put("pdf", "drawable/pdf");
+		typeMap.put("xls", "drawable/xls");
+		typeMap.put("txt", "drawable/txt");
+	}
 }
