@@ -80,7 +80,7 @@ public class DbDataSource {
 		database.execSQL(CREATE_TABLE_GROUP);
 		Log.d(DbDataSource.class.getName(),"New group created: "+name);
 		
-		File groupDir = new File(Environment.getExternalStorageDirectory()+"//A-U2P-files/"+name);
+		File groupDir = new File(Environment.getExternalStorageDirectory()+mainDir+name);
 		if(!groupDir.exists()){
 			if(groupDir.mkdir())
 				Log.d(DbDataSource.class.getName(), "Group dir: '"+name+"' created");

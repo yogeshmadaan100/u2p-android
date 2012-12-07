@@ -2,6 +2,9 @@ package com.u2p.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.u2p.core.db.DbDataSource;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,8 +19,8 @@ import android.widget.ListView;
 
 public class FileSelectionActivity extends Activity {
 
-	private File[] mFileList;
-    private File mPath = new File(Environment.getExternalStorageDirectory() + "//A-U2P-files");
+	private ArrayList<File> mFileList;
+    private File mPath = new File(Environment.getExternalStorageDirectory() + DbDataSource.getMaindir());
     private static final String TAG = "FileSelection";
     private static final String FILES_TO_UPLOAD = "upload";
     private ArrayList<File> resultFileList;
@@ -68,7 +71,9 @@ public class FileSelectionActivity extends Activity {
             Log.e(TAG, "unable to write on the sd card " + e.toString());
         }
         if(mPath.exists()) {
-        	mFileList = mPath.listFiles();
+        	for(File file : mPath.listFiles())
+        		if(file.isFile())
+        			 mFileList.add(file);
             Log.d(TAG, "File list created");
         }
         else {
@@ -82,7 +87,6 @@ public class FileSelectionActivity extends Activity {
         return true;
     }
 
-    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
