@@ -20,6 +20,7 @@ import com.u2p.core.db.DbUser;
 import com.u2p.events.ActivityEvents;
 import com.u2p.events.ActivityEventsListener;
 import com.u2p.events.FileEvent;
+import com.u2p.events.ListCommons;
 import com.u2p.events.ListEvent;
 import com.u2p.events.NewGroupList;
 import com.u2p.events.ServerEventsGenerator;
@@ -115,6 +116,10 @@ public class Client extends Thread implements ActivityEventsListener{
 					continue;
 				}
 				if(aux instanceof Authentication){
+					Authentication auth=(Authentication)aux;
+					List<String> commons=auth.getCommons();
+					ListCommons listCom=new ListCommons(eventsGenerator,address,commons);
+					eventsGenerator.addEvent(listCom);
 					Log.d(TAG,"Received Authentication message from "+address);
 					continue;
 				}
