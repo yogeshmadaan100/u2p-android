@@ -59,6 +59,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     private static final String RATING = "rating";
     private static final String TAG="MainActivity";
     public static final int PORT=2664;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +92,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		Log.d(TAG,"NSD: Initialize Resolve Listener");
 		server=new Server(PORT,datasource,this);
 		server.start();
+		
+		List<String> groups=datasource.getAllGroups();
+		for(String group:groups){
+			List<DbFile> list=datasource.getFilesGroup(group);
+			List<ItemFile> items=new ArrayList<ItemFile>();
+			for(DbFile dbFile:list){
+				items.add(new ItemFile(dbFile,datasource.getUser(1).getUser(),datasource.getFileType(dbFile.getType())));
+			}
+			groupListFiles.addListFileToGroup(group, new ArrayList<ItemFile>(items));
+			drawItems(group,groupListFiles.getListFile(group));
+		}
 
     }
 
@@ -274,6 +286,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 					ListEvent event=new ListEvent(eventsGenerator,newClient.getAddress());
 					event.setGroup(str);
 					this.launchEventToClients(event);
+					Log.d(TAG,"Launch event ListEvent");
 				}
 			}
 		}
