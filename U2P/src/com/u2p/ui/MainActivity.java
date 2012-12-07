@@ -96,10 +96,10 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 
     }
 
-    private void drawItems(String group){
+    private void drawItems(String group,List<ItemFile> items){
 		
         ListView lv = (ListView) findViewById(R.id.listView);
-        ItemFileAdapter adapter = new ItemFileAdapter(this, getItems(group));
+        ItemFileAdapter adapter = new ItemFileAdapter(this, (ArrayList<ItemFile>)items);
         lv.setOnItemClickListener(new OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -181,7 +181,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     			String uri = file.getAbsolutePath();
     			
     			datasource.addFileToGroup(group, fileName, uri, 0, 0);
-    			drawItems(group);
+    			drawItems(group,groupListFiles.getListFile(group));
     		}
     		Log.d(TAG, files.toString());
     	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
@@ -263,6 +263,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Log.d(TAG,"Receive event NewGroupList");
 			NewGroupList newGroup=(NewGroupList)e;
 			groupListFiles.addListFileToGroup(newGroup.getGroup(),newGroup.getFiles());
+			drawItems(newGroup.getGroup(),groupListFiles.getListFile(newGroup.getGroup()));
 			
 		}
 		if(e instanceof ListCommons){
@@ -318,7 +319,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		if(actionBar.getNavigationItemCount() > 0){
 			List<String> groups=datasource.getAllGroups();
 			String group = groups.get(position);
-			drawItems(group);
+			drawItems(group,groupListFiles.getListFile(group));
 			return true;
 		}else
 			return false;
