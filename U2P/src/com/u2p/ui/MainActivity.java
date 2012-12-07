@@ -96,25 +96,26 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 
     }
 
-    private void drawItems(String group,List<ItemFile> items){
-		
-        ListView lv = (ListView) findViewById(R.id.listView);
-        ItemFileAdapter adapter = new ItemFileAdapter(this, (ArrayList<ItemFile>)items);
-        lv.setOnItemClickListener(new OnItemClickListener() {
-
-			public void onItemClick(AdapterView<?> parent, View view, int position,
-					long id) {
-				ItemFile item = (ItemFile) parent.getItemAtPosition(position);
-				Intent intent = new Intent(getBaseContext(), FileDetailsActivity.class);
-				//Añadir el objeto que llama a la activity al intent
-				intent.putExtra("CALLER_ITEM", item);
-				//Añadir el nombre de la clase al intent
-				intent.putExtra("CALLER_CLASS", getIntent().getComponent().getClassName());
-		    	startActivityForResult(intent, DOWNLOAD_FILE);
-			}
-		});
-        
-        lv.setAdapter(adapter);
+    private void drawItems(String group,ArrayList<ItemFile> items){
+		if(items!=null){
+	        ListView lv = (ListView) findViewById(R.id.listView);
+	        ItemFileAdapter adapter = new ItemFileAdapter(this, items);
+	        lv.setOnItemClickListener(new OnItemClickListener() {
+	
+				public void onItemClick(AdapterView<?> parent, View view, int position,
+						long id) {
+					ItemFile item = (ItemFile) parent.getItemAtPosition(position);
+					Intent intent = new Intent(getBaseContext(), FileDetailsActivity.class);
+					//Añadir el objeto que llama a la activity al intent
+					intent.putExtra("CALLER_ITEM", item);
+					//Añadir el nombre de la clase al intent
+					intent.putExtra("CALLER_CLASS", getIntent().getComponent().getClassName());
+			    	startActivityForResult(intent, DOWNLOAD_FILE);
+				}
+			});
+	        
+	        lv.setAdapter(adapter);
+		}
     }
      
     private void refreshGroups(){
@@ -262,7 +263,8 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		if(e instanceof NewGroupList){
 			Log.d(TAG,"Receive event NewGroupList");
 			NewGroupList newGroup=(NewGroupList)e;
-			groupListFiles.addListFileToGroup(newGroup.getGroup(),newGroup.getFiles());
+			ArrayList<ItemFile> files=new ArrayList<ItemFile>(newGroup.getFiles());
+			groupListFiles.addListFileToGroup(newGroup.getGroup(),files);
 			drawItems(newGroup.getGroup(),groupListFiles.getListFile(newGroup.getGroup()));
 			
 		}
