@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.u2p.core.comm.Client;
 import com.u2p.core.comm.Server;
+import com.u2p.core.comm.ServerClient;
 import com.u2p.core.db.DbDataSource;
 import com.u2p.core.db.DbFile;
 import com.u2p.core.nsd.NsdHelper;
@@ -247,10 +248,25 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Log.d(TAG,"Receive event NewClient");
 			NewClientEvent newClient=(NewClientEvent)e;
 			//Pedir lista de ficheros al cliente
-			Client client=(Client)server.getActiveClient(newClient.getAddress());
-			if(client!=null){
-				Log.d(TAG,"Active client "+client.getAddress());
-				eventsGenerator.addListener(client);
+			ServerClient sclient;
+			Client client;
+			boolean notNull=false;
+			if(server.isService()){
+				sclient=(ServerClient)server.getActiveClient(newClient.getAddress());
+				if(sclient!=null){
+					Log.d(TAG,"Active client "+sclient.getAdress());
+					eventsGenerator.addListener(sclient);
+					notNull=true;
+				}
+			}else{
+				client=(Client)server.getActiveClient(newClient.getAddress());
+				if(client!=null){
+					Log.d(TAG,"Active client "+client.getAddress());
+					eventsGenerator.addListener(client);
+					notNull=true;
+				}
+			}
+			if(notNull){
 				server.addGroupCommon(newClient.getAddress(),newClient.getCommons());
 				List<String> groupsCommons=newClient.getCommons();
 				for(String str:groupsCommons){

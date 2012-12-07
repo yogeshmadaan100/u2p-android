@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -16,7 +17,12 @@ import android.util.Log;
 
 import com.u2p.core.db.DbDataSource;
 import com.u2p.core.db.DbFile;
+import com.u2p.events.ActivityEvents;
+import com.u2p.events.ActivityEventsListener;
+import com.u2p.events.FileEvent;
+import com.u2p.events.ListEvent;
 import com.u2p.events.NewClientEvent;
+import com.u2p.events.VoteEvent;
 import com.u2p.messages.ACK;
 import com.u2p.messages.Authentication;
 import com.u2p.messages.FileAnswer;
@@ -26,7 +32,7 @@ import com.u2p.messages.ListRequest;
 import com.u2p.messages.VoteFile;
 import com.u2p.ui.component.ItemFile;
 
-public class ServerClient extends Thread{
+public class ServerClient extends Thread implements ActivityEventsListener{
 	private InetAddress address;
 	private Socket socket;
 	private OutputStream out;
@@ -208,6 +214,48 @@ public class ServerClient extends Thread{
 			}
 		}catch(IOException ew){
 			Log.e("ServerClient","IOException");
+		}
+	}
+	private void requestFile(String group,String file) throws IOException{
+		FileRequest fileR=new FileRequest(file,group);
+		oos.writeObject(fileR);
+		Log.d(TAG,"Sending FileRequest message to "+this.address);
+	}
+	
+	private void requestList(String group) throws IOException{
+		ListRequest list=new ListRequest(group);
+		oos.writeObject(list);
+		Log.d(TAG,"Sending ListRequest message to "+this.address);
+	}
+	
+	private void voteFile(String group,String file, int vote) throws IOException{
+		VoteFile votem=new VoteFile(group,file,vote);
+		oos.writeObject(votem);
+		Log.d(TAG,"Sending VoteFile message to "+this.address);
+	}
+	
+	public void handleActivityEventsListener(EventObject e) {
+		// TODO Auto-generated method stub
+		ActivityEvents event=(ActivityEvents)e;
+		
+		if(event.getAddress().toString().equals(this.address.toString())){
+			//El evento es para este cliente, por tanto manejamos el evento
+			try{
+				if(event instanceof FileEvent){
+					FileEvent file=(FileEvent)event;
+					this.requestFile(file.getGroup(), file.getFile());
+				}
+				if(event instanceof ListEvent){
+					ListEvent list=(ListEvent)event;
+					this.requestList(list.getGroup());
+				}
+				if(event instanceof VoteEvent){
+					VoteEvent vote=(VoteEvent)event;
+					this.voteFile(vote.getGroup(),vote.getFile(),vote.getVote());
+				}
+			}catch(IOException e1){
+				Log.e(TAG,"IOException handle activity events");
+			}
 		}
 	}
 }
