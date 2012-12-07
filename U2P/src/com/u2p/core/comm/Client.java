@@ -55,7 +55,9 @@ public class Client extends Thread implements ActivityEventsListener{
 		this.eventsGenerator=new ServerEventsGenerator();
 		eventsGenerator.addListener(activity);
 	}
-	
+	public InetAddress getAddress(){
+		return this.address;
+	}
 	public void close() throws IOException{
 		if(!end){
 			ACK ack=new ACK(Server.ACK_END);

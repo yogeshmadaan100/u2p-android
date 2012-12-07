@@ -6,7 +6,6 @@ import java.util.EventObject;
 import java.util.List;
 
 import android.app.ActionBar;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.SQLException;
@@ -32,13 +31,10 @@ import com.u2p.core.nsd.NsdHelper;
 import com.u2p.events.ActivityEventsGenerator;
 import com.u2p.events.FileEvent;
 import com.u2p.events.ListCommons;
-
+import com.u2p.events.ListEvent;
 import com.u2p.events.NewClientEvent;
-
 import com.u2p.events.NewGroupList;
-
 import com.u2p.events.ServerEventsListener;
-import com.u2p.ui.R.id;
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.GroupListFile;
 import com.u2p.ui.component.ItemFile;
@@ -252,15 +248,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			NewClientEvent newClient=(NewClientEvent)e;
 			//Pedir lista de ficheros al cliente
 			Client client=(Client)server.getActiveClient(newClient.getAddress());
+			Log.d(TAG,"Active client "+client.getAddress());
 			if(client!=null){
 				eventsGenerator.addListener(client);
 				server.addGroupCommon(newClient.getAddress(),newClient.getCommons());
-				/*List<String> groupsCommons=newClient.getCommons();
+				List<String> groupsCommons=newClient.getCommons();
 				for(String str:groupsCommons){
+					Log.d(TAG,"Group in common "+str);
 					ListEvent event=new ListEvent(eventsGenerator,newClient.getAddress());
 					event.setGroup(str);
 					this.launchEventToClients(event);
-				}*/
+				}
 			}
 		}
 		if(e instanceof NewGroupList){
