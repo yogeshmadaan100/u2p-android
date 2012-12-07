@@ -173,7 +173,7 @@ public class DbDataSource {
 	public DbUser getUser(int id){
 		DbUser user;
 		Cursor cursor=database.query(DbU2P.TABLE_USERS,allColumnsUsers,
-				DbU2P.COLUM_ID+" = "+id, null,null,null,null);
+				DbU2P.COLUM_ID+" =? ", new String[]{Integer.toString(id)},null,null,null);
 		
 		cursor.moveToFirst();
 		user=cursorToUser(cursor);
@@ -184,7 +184,7 @@ public class DbDataSource {
 	public DbUser getUser(String name){
 		DbUser user;
 		Cursor cursor=database.query(DbU2P.TABLE_USERS,allColumnsUsers,
-				DbU2P.COLUM_USER+" = "+name, null,null,null,null);
+				DbU2P.COLUM_USER+" =? ", new String[]{name},null,null,null);
 		
 		cursor.moveToFirst();
 		user=cursorToUser(cursor);
@@ -195,7 +195,7 @@ public class DbDataSource {
 	public String getHashGroup(String group){
 		if(this.tableExist(group)){
 			Cursor cursor=database.query(DbU2P.TABLE_USERS,new String[]{DbU2P.COLUM_HASH},
-					DbU2P.COLUM_GROUP+" = "+group, null,null,null,null);
+					DbU2P.COLUM_GROUP+" = ?", new String[]{group},null,null,null);
 			
 			cursor.moveToFirst();
 			String hash=cursor.getString(0);
