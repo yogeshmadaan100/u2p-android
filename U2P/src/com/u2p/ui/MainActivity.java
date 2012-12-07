@@ -347,6 +347,8 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	
 	@Override
 	protected void onDestroy() {
+		server.close();
+		Log.d(TAG,"OnDestroy(): close server");
 		if(mNsdHelper.isRegistered()){
 			mNsdHelper.tearDown();
 			Log.d(TAG,"OnDestroy(): tead down");
@@ -356,8 +358,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Log.d(TAG,"OnDestroy(): stop discovey()");
 		}
 		
-		server.close();
-		Log.d(TAG,"OnDestroy(): close server");
 		super.onDestroy();
 	}
 }
