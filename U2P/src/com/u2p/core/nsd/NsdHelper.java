@@ -30,7 +30,7 @@ public class NsdHelper {
     NsdManager.ResolveListener mResolveListener;
     NsdManager.DiscoveryListener mDiscoveryListener;
     NsdManager.RegistrationListener mRegistrationListener;
-	private boolean discovering, registered;
+	private boolean discovering, registered,connected;
 
     public static final String SERVICE_TYPE = "_http._tcp.";
 
@@ -44,9 +44,10 @@ public class NsdHelper {
         mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
         setDiscovering(false);
         setRegistered(false);
+        setConnected(false);
     }
 
-    public void initializeDiscoveryListener() {
+	public void initializeDiscoveryListener() {
         mDiscoveryListener = new NsdManager.DiscoveryListener() {
             public void onDiscoveryStarted(String regType) {
                 Log.d(TAG, "Service discovery started");
@@ -107,6 +108,7 @@ public class NsdHelper {
                     return;
                 }
                 mService = serviceInfo;
+                setConnected(true);
             }
         };
     }
@@ -182,5 +184,12 @@ public class NsdHelper {
 
 	public void setDiscovering(boolean discovering) {
 		this.discovering = discovering;
+	}
+    public boolean isConnected() {
+		return connected;
+	}
+
+	public void setConnected(boolean connected) {
+		this.connected = connected;
 	}
 }

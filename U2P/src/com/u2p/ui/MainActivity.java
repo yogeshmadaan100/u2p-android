@@ -19,11 +19,14 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,11 +58,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     private static final String RATING = "rating";
     private static final String TAG="MainActivity";
     public static final int PORT=2664;
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
         eventsGenerator=new ActivityEventsGenerator();
         // Set up the action bar.
         actionBar = getActionBar();
@@ -86,10 +89,13 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		Log.d(TAG,"NSD: Initialize Resolve Listener");
 		server=new Server(PORT,datasource,this);
 		server.start();
+
+    }
+    
+    private void drawItems(List<ItemFile> itemsFile){
 		
         ListView lv = (ListView) findViewById(R.id.listView);
-        ArrayList<ItemFile> items = getItems();
-        ItemFileAdapter adapter = new ItemFileAdapter(this, items);
+        ItemFileAdapter adapter = new ItemFileAdapter(this, new ArrayList<ItemFile>(itemsFile));
                 
         lv.setOnItemClickListener(new OnItemClickListener() {
 
@@ -107,7 +113,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         
         lv.setAdapter(adapter);
     }
-    
+     
     private void refreshGroups(){
         List<String> groups=datasource.getAllGroups();
 		drawActionBar(groups);
@@ -290,14 +296,20 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		eventsGenerator.addEvent(event);
 	}
 	
-	public void discoverService(View v){
-		if(!mNsdHelper.isDiscovering())
-			mNsdHelper.initializeDiscoveryListener();	
-		Toast.makeText(getApplicationContext(), "Discover service...",Toast.LENGTH_SHORT).show();
-		mNsdHelper.discoverServices();
+	public void discoverService(MenuItem v){
+		if(!mNsdHelper.isRegistered()){
+			if(!mNsdHelper.isDiscovering())
+				mNsdHelper.initializeDiscoveryListener();	
+			Toast.makeText(getApplicationContext(), "Discover service...",Toast.LENGTH_SHORT).show();
+			mNsdHelper.discoverServices();
+		}
+		if(mNsdHelper.isConnected()){
+			//refrescar contenido
+			
+		}
 	}
 	
-	public void connectService(View v){
+	public void connectService(MenuItem v){
 		Toast.makeText(getApplicationContext(), "Connect to service...",Toast.LENGTH_SHORT).show();
 		NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
 		
@@ -310,8 +322,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		}
 	}
 	
-	public void registerService(View v){
-
+	public void registerService(MenuItem v){
 		if(!mNsdHelper.isRegistered()){
 			if(mNsdHelper.isDiscovering()) mNsdHelper.stopDiscovery();
 			mNsdHelper.initializeRegistrationListener();
@@ -319,12 +330,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			mNsdHelper.registerService(PORT);
 			server.setService(true);
 			return ;
-		}else{
-			mNsdHelper.tearDown();
-			server.setService(false);
-			mNsdHelper= new NsdHelper(this);
-			mNsdHelper.initializeResolveListener();
-
 		}
 	}
 	
