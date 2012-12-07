@@ -20,19 +20,28 @@ public class Server extends Thread{
 	private ServerSocket ssocket;
 	private ServerEventsGenerator eventsGenerator;
 	private HashMap<InetAddress,Thread> activeClients;
+	private HashMap<InetAddress,List<String>> groupsCommons;
 	private int port;
 	private static final String TAG="Server";
 	private DbDataSource datasource;
 	private boolean isService;
 	
 	public static final int ACK_END=-1;
+	public static final int ACK_ERROR_FILE=4;
+	public static final int LIST_REQUEST_ERROR=1;
+	public static final int LIST_SEND=2;
+	public static final int FILE_SEND=3;
+
+
 	
 	public static final int EVENT_CHANGE_CLIENTS=1;
+	public static final int EVENT_NEW_CLIENT=2;
 	
 	public Server(int port,DbDataSource datasource,MainActivity activity){
 		this.port=port;
 		this.datasource=datasource;
 		activeClients=new HashMap<InetAddress,Thread>();
+		groupsCommons=new HashMap<InetAddress,List<String>>();
 		this.eventsGenerator=new ServerEventsGenerator();
 		eventsGenerator.addListener(activity);
 	}
@@ -43,14 +52,13 @@ public class Server extends Thread{
 	public boolean isService(){
 		return this.isService;
 	}
-	
+	public ServerEventsGenerator getGenerator(){
+		return this.eventsGenerator;
+	}
 	public void launchEventToActivity(EventObject event,int type){
-		if(type==this.EVENT_CHANGE_CLIENTS){
-			ChangesClientEvents change=new ChangesClientEvents(eventsGenerator,this.activeClients);
-			eventsGenerator.addEvent(change);
+		if(type==this.EVENT_NEW_CLIENT){
+			eventsGenerator.addEvent(event);
 		}
-		//eventsGenerator.addEvent(event);
-		
 	}
 	
 	public synchronized void addActiveClient(InetAddress address,Thread client){
@@ -58,6 +66,20 @@ public class Server extends Thread{
 			activeClients.put(address,client);
 			Log.d(TAG, "Add new active client "+address);
 		}
+	}
+	
+	public synchronized void addGroupCommon(InetAddress address,List<String> commons){
+		if(!groupsCommons.containsKey(address)){
+			groupsCommons.put(address,commons);
+			Log.d(TAG, "Add new list commons to client "+address);
+		}
+	}
+	
+	public List<String> getGroupsCommons(InetAddress address){
+		if(!groupsCommons.containsKey(address)){
+			return groupsCommons.get(address);
+		}
+		return null;
 	}
 	
 	public void deleteActiveClient(InetAddress address){

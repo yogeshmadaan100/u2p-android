@@ -36,6 +36,11 @@ import com.u2p.core.db.DbFile;
 import com.u2p.core.nsd.NsdHelper;
 import com.u2p.events.ActivityEventsGenerator;
 import com.u2p.events.ChangesClientEvents;
+import com.u2p.events.FileEvent;
+import com.u2p.events.ListEvent;
+import com.u2p.events.NewClientEvent;
+import com.u2p.events.SendFileEvent;
+import com.u2p.events.SendListEvent;
 import com.u2p.events.ServerEventsListener;
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.ItemFile;
@@ -225,8 +230,20 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	public void handleServerEventsListener(EventObject e) {
 		// TODO Auto-generated method stub
 		
-		if(e instanceof ChangesClientEvents){
-			ChangesClientEvents changes=(ChangesClientEvents)e;
+		if(e instanceof NewClientEvent){
+			NewClientEvent newClient=(NewClientEvent)e;
+			//Pedir lista de ficheros al cliente
+			Client client=(Client)server.getActiveClient(newClient.getAddress());
+			if(client!=null){
+				eventsGenerator.addListener(client);
+				server.addGroupCommon(newClient.getAddress(),newClient.getCommons());
+				/*List<String> groupsCommons=newClient.getCommons();
+				for(String str:groupsCommons){
+					ListEvent event=new ListEvent(eventsGenerator,newClient.getAddress());
+					event.setGroup(str);
+					this.launchEventToClients(event);
+				}*/
+			}
 		}
 		
 	}
@@ -253,7 +270,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
 		
 		if(service!=null){
-			Client client=new Client(service.getHost(),service.getPort(),datasource);
+			Client client=new Client(service.getHost(),service.getPort(),datasource,this);
 			Toast.makeText(getApplicationContext(), "Connect to "+service.getServiceName()+" on port "+service.getPort(), Toast.LENGTH_SHORT).show();
 			client.start();
 		}else{

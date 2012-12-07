@@ -126,6 +126,23 @@ public class DbDataSource {
 		return false;
 	}
 	
+	public boolean voteFile(String group,String filename,int vote){
+		if(this.tableExist(group)){
+			int v=0;
+			ContentValues values=new ContentValues();
+			if(vote!=0){
+				if(vote>0)
+					values.put(DbU2P.GROUP_COLUM_POSITIVE,1);
+				else
+					values.put(DbU2P.GROUP_COLUM_NEGATIVE,-1);
+				database.update(group, values, DbU2P.GROUP_COLUM_NAME+"=?", new String[]{filename});
+				Log.d(DbDataSource.class.getName(),"Vote file "+filename+" group "+group);
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	public List<String> getAllGroups(){
 		List<String> listsGroups=new ArrayList<String>();
 		
@@ -228,6 +245,32 @@ public class DbDataSource {
 		return null;
 	}
 	
+	public DbFile getFile(String group,String name){
+		if(this.tableExist(group)){
+			Cursor cursor=database.query(group,
+					new String[] {DbU2P.GROUP_COLUM_URI},DbU2P.GROUP_COLUM_NAME+"=?",new String[]{name},null,null,null);
+			cursor.moveToFirst();
+			DbFile file=this.cursorToFile(cursor);
+			cursor.close();
+			return file;
+		}
+		
+		return null;
+	}
+	public boolean existsFile(String group,String filename){
+		if(this.tableExist(group)){
+			Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM "+group+" WHERE "+DbU2P.GROUP_COLUM_NAME+
+					"="+filename,null);
+			if(!cursor.moveToFirst()){
+				return false;
+			}
+			int count = cursor.getInt(0);
+			cursor.close();
+			return count > 0;
+		}
+		return false;
+	}
+	
 	private String sha1(String pass){
 		try{
 			MessageDigest digest=java.security.MessageDigest.getInstance("SHA-1");
@@ -259,6 +302,9 @@ public class DbDataSource {
 		return false;
 	}
 	
+	public boolean groupExist(String group){
+		return this.tableExist(group);
+	}
 	private boolean tableExist(String tablename){
 		
 		if(tablename==null || !database.isOpen()){
