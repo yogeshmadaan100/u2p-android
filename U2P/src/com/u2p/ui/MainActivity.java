@@ -44,7 +44,7 @@ import com.u2p.ui.component.LoginDialogFragment;
 public class MainActivity extends FragmentActivity implements ActionBar.OnNavigationListener, 
 LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DbDataSource datasource;
-	private HashMap<String, String> typeMap = new HashMap<String,String>();
+	//private HashMap<String, String> typeMap = new HashMap<String,String>();
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
@@ -81,7 +81,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	Log.e(TAG,"No default user");
         	loginDialog();
         }
-        createTypeMap();
         
         this.refreshGroups();
         //Comunicaciones
@@ -145,7 +144,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     	List<DbFile> files = datasource.getFilesGroup(group);
     	
     	for(DbFile file : files){
-    		items.add(new ItemFile(file, datasource.getUser(1).getUser(), typeMap.get(file.getType())));
+    		items.add(new ItemFile(file, datasource.getUser(1).getUser(), datasource.getFileType(file.getType())));
     	}
     	return items;
     }
@@ -301,7 +300,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         return true;
     }
 	
-	private void createTypeMap(){
+	/*private void createTypeMap(){
 		typeMap.put("exe", "drawable/binary");
 		typeMap.put("jar", "drawable/binary");
 		typeMap.put("bin", "drawable/binary");
@@ -327,7 +326,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		typeMap.put("pdf", "drawable/pdf");
 		typeMap.put("xls", "drawable/xls");
 		typeMap.put("txt", "drawable/txt");
-	}
+	}*/
 	
 	@Override
 	protected void onPause() {
