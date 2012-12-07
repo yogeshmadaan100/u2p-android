@@ -2,7 +2,6 @@ package com.u2p.ui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.u2p.core.db.DbDataSource;
 
@@ -19,7 +18,7 @@ import android.widget.ListView;
 
 public class FileSelectionActivity extends Activity {
 
-	private ArrayList<File> mFileList;
+	private ArrayList<File> mFileList = new ArrayList<File>();
     private File mPath = new File(Environment.getExternalStorageDirectory() + DbDataSource.getMaindir());
     private static final String TAG = "FileSelection";
     private static final String FILES_TO_UPLOAD = "upload";
@@ -30,7 +29,7 @@ public class FileSelectionActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_selection);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        
+
         loadFileList();
         
         ArrayAdapter adapter = new ArrayAdapter<File>(this, android.R.layout.simple_list_item_multiple_choice, mFileList);
@@ -71,10 +70,14 @@ public class FileSelectionActivity extends Activity {
             Log.e(TAG, "unable to write on the sd card " + e.toString());
         }
         if(mPath.exists()) {
-        	for(File file : mPath.listFiles())
-        		if(file.isFile())
-        			 mFileList.add(file);
-            Log.d(TAG, "File list created");
+        	if(mPath.length()>0){
+        		File[] tempList = mPath.listFiles();
+        		for(File file : tempList)
+        			if(file.isFile())
+        				mFileList.add(file);
+        		
+        		Log.d(TAG, "File list created");
+        	}
         }
         else {
             Log.e(TAG, "File list not created");
