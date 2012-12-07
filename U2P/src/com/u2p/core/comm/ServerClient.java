@@ -7,6 +7,10 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 import android.util.Log;
 
@@ -26,6 +30,7 @@ public class ServerClient extends Thread{
 	private ObjectInputStream ois;
 	private boolean end;
 	private static final String TAG="ServerClient";
+	private String userName;
 	private DbDataSource datasource;
 	private Server parent;
 	
@@ -35,6 +40,7 @@ public class ServerClient extends Thread{
 		this.datasource=datasource;
 		this.parent=parent;
 		end=false;
+		this.userName=datasource.getUser(1).getUser();
 	}
 	
 	public InetAddress getAdress(){
@@ -53,6 +59,18 @@ public class ServerClient extends Thread{
 		oos.close();
 		out.close();
 		socket.close();
+	}
+	
+	public List<String> compareGroups(HashMap<String,String> socketGroups,HashMap<String,String> userGroups){
+	    List<String> commons=new ArrayList<String>();
+		for (Entry<String, String> entry : socketGroups.entrySet()) {
+	        String key = entry.getKey();
+	        String hash=entry.getValue();
+	        if(userGroups.containsKey(key) && hash.equals(userGroups.get(key))){
+	        	commons.add(key);
+	        }
+	    }
+		return commons;
 	}
 	
 	public void run(){
@@ -83,16 +101,39 @@ public class ServerClient extends Thread{
 					if(aux instanceof Authentication){
 						Log.d(TAG,"Received Authentication message from "+address);
 						Authentication aut=(Authentication)aux;
+						HashMap<String,String> socketGroups=aut.getGroups();
+						List<String> userGroups=datasource.getAllGroups();
+						HashMap<String,String> serverGroups=new HashMap<String,String>();
+						
+						String hashtmp;
+						for(String group:userGroups){
+							hashtmp=datasource.getHashGroup(group);
+							if(hashtmp!=null){
+								serverGroups.put(group, hashtmp);
+							}
+						}
 						//Comparar los grupos que se reciben para ver si pertenecemos a alguno de esos grupos
-						//Si pertenecemos a alguno lo guardamos como cliente
-							//parent.addActiveClient(address,this);
+						List<String> commons=this.compareGroups(socketGroups,serverGroups);
+						for(String str:commons){
+							Log.d(TAG,str);
+						}
+						if(commons.size()>0){
+							//Si tenemos algún grupo en común lo guardamos como cliente
+							parent.addActiveClient(address, this);
 							//Enviamos un message Authentication
-							//Lanzar evento al activity principal de nuevo cliente
-						
-						//Si no enviamos ACK para acabar la comunicación
+							Authentication at=new Authentication(userName);
+							at.setCommons((ArrayList)commons);
+							oos.writeObject(at);
+							Log.d(TAG, "Send Authentication message with commons groups to "+address);
+							
+						}else{
+							//Si no enviamos ACK para acabar la comunicación
+							ACK ack=new ACK(Server.ACK_END);
+							oos.writeObject(ack);
+							Log.d(TAG, "No commons group, cancel communication to "+address);
+						}
 	
-						Log.d(TAG,"Send Authentication message to "+address);
-						
+						//Lanzar evento al activity principal de nuevo cliente
 						//Si además de servidor también es el que oferta el servicio, cada vez que reciba un mensaje 
 						//de estos tendrá que avisar a todos los clientes (menos al último) que le han contactado con los datos 
 						//del último cliente que se haya conectado
