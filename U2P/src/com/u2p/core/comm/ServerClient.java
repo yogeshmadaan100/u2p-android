@@ -15,11 +15,16 @@ import java.util.Map.Entry;
 import android.util.Log;
 
 import com.u2p.core.db.DbDataSource;
+import com.u2p.core.db.DbFile;
+import com.u2p.events.NewClientEvent;
 import com.u2p.messages.ACK;
 import com.u2p.messages.Authentication;
+import com.u2p.messages.FileAnswer;
 import com.u2p.messages.FileRequest;
+import com.u2p.messages.ListAnswer;
 import com.u2p.messages.ListRequest;
 import com.u2p.messages.VoteFile;
+import com.u2p.ui.component.ItemFile;
 
 public class ServerClient extends Thread{
 	private InetAddress address;
@@ -52,6 +57,7 @@ public class ServerClient extends Thread{
 		if(!end){
 			ACK ack=new ACK(Server.ACK_END);
 			oos.writeObject(ack);
+			Log.d(TAG,"Sending ACK END to "+address);
 		}
 		Log.d(TAG, "Close comunication");
 		ois.close();
@@ -125,6 +131,8 @@ public class ServerClient extends Thread{
 							at.setCommons((ArrayList)commons);
 							oos.writeObject(at);
 							Log.d(TAG, "Send Authentication message with commons groups to "+address);
+							NewClientEvent event=new NewClientEvent(parent.getGenerator(),address,at.getUser(),commons);
+							parent.launchEventToActivity(event, Server.EVENT_NEW_CLIENT);
 							
 						}else{
 							//Si no enviamos ACK para acabar la comunicación
@@ -137,7 +145,9 @@ public class ServerClient extends Thread{
 						//Si además de servidor también es el que oferta el servicio, cada vez que reciba un mensaje 
 						//de estos tendrá que avisar a todos los clientes (menos al último) que le han contactado con los datos 
 						//del último cliente que se haya conectado
-						//if(parent.isService())
+						if(parent.isService()){
+							
+						}
 						continue;
 					}
 					if(aux instanceof FileRequest){
@@ -145,22 +155,48 @@ public class ServerClient extends Thread{
 						//Petición para el envio de un archivo
 						FileRequest fileR=(FileRequest)aux;
 						//Comprobamos que el archivo existe
-						//Si da tiempo lo ciframos
-						//Buscamos archivo
-						//Lo enviamos con un FileAnswer
-						Log.d(TAG,"Send FileAnswer message to "+address);
+						if(datasource.existsFile(fileR.getGroup(),fileR.getName())){
+							//Si da tiempo lo ciframos
+							FileAnswer file=new FileAnswer(fileR.getName(),fileR.getGroup());
+							String uri=datasource.getFile(fileR.getGroup(),fileR.getName()).getUri();
+							file.read(uri);
+							oos.writeObject(file);
+							Log.d(TAG,"Send FileAnswer message to "+address);
+							continue;
+						}else{
+							ACK ack=new ACK(Server.ACK_ERROR_FILE);
+							oos.writeObject(ack);
+							Log.e(TAG, "File "+fileR.getName()+" not found in group "+fileR.getGroup());
+						}
 						continue;
 					}
 					if(aux instanceof ListRequest){
 						Log.d(TAG,"Received ListRequest message from "+address);
+						ListRequest list=(ListRequest)aux;
+						String group=list.getGroup();
 						
-						Log.d(TAG,"Send ListAnswer message to "+address);
+						if(datasource.groupExist(group)){
+							List<DbFile> files=datasource.getFilesGroup(group);
+							List<ItemFile> items=new ArrayList<ItemFile>();
+							
+							for(DbFile file:files){
+								items.add(new ItemFile(file,this.userName,datasource.getFileType(file.getType())));
+							}
+							ListAnswer listA=new ListAnswer((ArrayList<ItemFile>)items,group);
+							oos.writeObject(listA);
+							Log.d(TAG, "Send ListAnswer message to "+address);
+						}else{
+							ACK ack=new ACK(Server.LIST_REQUEST_ERROR);
+							oos.writeObject(ack);
+							Log.d(TAG,"Group not found");
+						}
 						continue;
 					}
 					if(aux instanceof VoteFile){
 						Log.d(TAG,"Received VoteFile message from "+address);
-						//Comprobar grupo y fichero
-						//votar
+						VoteFile vote=(VoteFile)aux;
+						datasource.voteFile(vote.getGroup(),vote.getFile(),vote.getVote());
+						continue;
 					}
 					
 				}

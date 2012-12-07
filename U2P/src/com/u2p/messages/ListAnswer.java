@@ -10,11 +10,15 @@ public class ListAnswer implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private ArrayList<ItemFile> itemsList;
-
-	public ListAnswer(ArrayList<ItemFile> itemsList){
+	private String group;
+	public ListAnswer(ArrayList<ItemFile> itemsList,String group){
 		setItemsList(itemsList);
+		this.group=group;
+		
 	}
-	
+	public String getGroup(){
+		return this.group;
+	}
 	public ArrayList<ItemFile> getItemsList() {
 		return itemsList;
 	}

@@ -8,12 +8,12 @@ public class FileRequest implements Serializable{
 	
 	private String name;
 	private String group;
-	private String fileURI;
 	
-	public FileRequest(String name, String group, String fileURI){
+	
+	public FileRequest(String name, String group){
 		setName(name);
 		setGroup(group);
-		setFileURI(fileURI);
+		
 	}
 
 	public String getName() {
@@ -32,12 +32,5 @@ public class FileRequest implements Serializable{
 		this.group = group;
 	}
 
-	public String getFileURI() {
-		return fileURI;
-	}
-
-	public void setFileURI(String fileURI) {
-		this.fileURI = fileURI;
-	}
 
 }

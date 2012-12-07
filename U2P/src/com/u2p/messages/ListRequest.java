@@ -7,7 +7,7 @@ public class ListRequest implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String group;
-
+	
 	public ListRequest(String group){
 		setGroup(group);
 	}

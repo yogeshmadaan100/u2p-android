@@ -1,5 +1,6 @@
 package com.u2p.core.comm;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -11,6 +12,7 @@ import java.net.Socket;
 import java.util.EventObject;
 import java.util.List;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.u2p.core.db.DbDataSource;
@@ -19,16 +21,22 @@ import com.u2p.events.ActivityEvents;
 import com.u2p.events.ActivityEventsListener;
 import com.u2p.events.FileEvent;
 import com.u2p.events.ListEvent;
+import com.u2p.events.NewGroupList;
+import com.u2p.events.ServerEventsGenerator;
 import com.u2p.events.VoteEvent;
 import com.u2p.messages.ACK;
 import com.u2p.messages.Authentication;
 import com.u2p.messages.FileAnswer;
+import com.u2p.messages.FileRequest;
 import com.u2p.messages.ListAnswer;
+import com.u2p.messages.ListRequest;
 import com.u2p.messages.VoteFile;
+import com.u2p.ui.MainActivity;
 
 public class Client extends Thread implements ActivityEventsListener{
 	private Socket socket;
 	private InetAddress address;
+	private ServerEventsGenerator eventsGenerator;
 	private int port;
 	private OutputStream out;
 	private ObjectOutputStream oos;
@@ -38,17 +46,20 @@ public class Client extends Thread implements ActivityEventsListener{
 	private static final String TAG="Client";
 	private boolean end;
 	
-	public Client(InetAddress address, int port, DbDataSource datasource){
+	public Client(InetAddress address, int port, DbDataSource datasource,MainActivity activity){
 		this.address=address;
 		this.port=port;
 		this.datasource=datasource;
 		this.end=false;
+		this.eventsGenerator=new ServerEventsGenerator();
+		eventsGenerator.addListener(activity);
 	}
 	
 	public void close() throws IOException{
 		if(!end){
 			ACK ack=new ACK(Server.ACK_END);
 			oos.writeObject(ack);
+			Log.d(TAG,"Sending ACK END to "+address);
 		}
 		Log.d(TAG, "Close comunication");
 		ois.close();
@@ -113,13 +124,17 @@ public class Client extends Thread implements ActivityEventsListener{
 					FileAnswer fileA=(FileAnswer)aux;
 					//Si da tiempo lo desciframos
 					//Escribimos archivo
+					File path=new File(Environment.getExternalStorageDirectory()+"//A-U2P-files/"+fileA.getGroup());
+					fileA.write(path.getPath());
 					//Enviamos ACK
-					Log.d(TAG,"Send FileAnswer ACK message to "+address);
+					Log.d(TAG,"Write file "+fileA.getFilename());
 					continue;
 				}
 				if(aux instanceof ListAnswer){
 					Log.d(TAG,"Received ListAnswer message from "+address);
-					
+					ListAnswer list=(ListAnswer)aux;
+					NewGroupList event=new NewGroupList(eventsGenerator,address,list.getGroup(),list.getItemsList());
+					eventsGenerator.addEvent(event);
 					Log.d(TAG,"Send ListAnswer ACK message to "+address);
 					continue;
 				}
@@ -135,11 +150,15 @@ public class Client extends Thread implements ActivityEventsListener{
 		}
 	}
 	
-	private void requestFile(String group,String file){
+	private void requestFile(String group,String file) throws IOException{
+		FileRequest fileR=new FileRequest(file,group);
+		oos.writeObject(fileR);
 		Log.d(TAG,"Sending FileRequest message to "+this.address);
 	}
 	
-	private void requestList(String group){
+	private void requestList(String group) throws IOException{
+		ListRequest list=new ListRequest(group);
+		oos.writeObject(list);
 		Log.d(TAG,"Sending ListRequest message to "+this.address);
 	}
 	
