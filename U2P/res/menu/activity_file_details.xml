@@ -1,19 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Settings
-    	<item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" /> -->
     
     <item android:id="@+id/rating_up"
         android:icon="@drawable/rating_good"
         android:title="@string/rating_good"
-        android:showAsAction="always"
-        android:onClick="onRateGoodClick" />
+        android:showAsAction="always" />
         
     <item android:id="@+id/rating_bad"
         android:icon="@drawable/rating_bad"
         android:title="@string/rating_bad"
-        android:showAsAction="always"
-        android:onClick="onRateBadClick" />
+        android:showAsAction="always" />
 </menu>

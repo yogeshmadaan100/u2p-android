@@ -46,9 +46,12 @@ public class FileDetailsActivity extends Activity {
         
         this.setTitle(item.getName());
         
+        String name = item.getName();
+		String[] strs = name.split("\\.");
+        
         owner.append(" "+item.getUser());
         size.append(" "+item.getSize());
-        type.append(" "+".ALGO");
+        type.append(" "+strs[strs.length-1]);
         rating.append(" "+item.getRating());
         
 		int imageResource = getResources().getIdentifier(item.getRutaImagen(), null, getPackageName());
@@ -71,24 +74,23 @@ public class FileDetailsActivity extends Activity {
     	finish();
     }
     
-    public void onRateGoodClick(MenuItem item){
-    	rating = 1;
-    	Toast.makeText(getApplicationContext(), "+1", Toast.LENGTH_SHORT).show();
-    }
-    /*Hacer solo un onRate y meter el resultado en el intent, hacer una variable
-     * que diga si ya has votado, si ya votaste no puedes volver a hacerlo*/
-    
-    public void onRateBadClick(MenuItem item){
-    	rating = -1;
-    	Toast.makeText(getApplicationContext(), "-1", Toast.LENGTH_SHORT).show();
-    }
-    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+            	setResult(Activity.RESULT_OK, result);
+            	finish();
                 return true;
+            case R.id.rating_up:
+            	rating = 1;
+            	result.putExtra(RATING, rating);
+            	Toast.makeText(getApplicationContext(), "+1 in Intent", Toast.LENGTH_SHORT).show();
+            	return true;
+            case R.id.rating_bad:
+            	rating = -1;
+            	result.putExtra(RATING, rating);
+            	Toast.makeText(getApplicationContext(), "-1 in Intent", Toast.LENGTH_SHORT).show();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
