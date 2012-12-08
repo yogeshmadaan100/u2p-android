@@ -48,7 +48,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
-	private String user;
 	private GroupListFile groupListFiles;
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
@@ -119,8 +118,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 					Intent intent = new Intent(getBaseContext(), FileDetailsActivity.class);
 					//Añadir el objeto que llama a la activity al intent
 					intent.putExtra("CALLER_ITEM", item);
-					//Añadir el nombre de la clase al intent
-					intent.putExtra("CALLER_CLASS", getIntent().getComponent().getClassName());
 			    	startActivityForResult(intent, DOWNLOAD_FILE);
 				}
 			});
@@ -263,8 +260,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	}
 
 	public void handleServerEventsListener(EventObject e) {
-		// TODO Auto-generated method stub
-		
 		if(e instanceof NewClientEvent){
 			Log.d(TAG,"Receive event NewClient");
 			NewClientEvent newClient=(NewClientEvent)e;
@@ -291,7 +286,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 				server.addGroupCommon(newClient.getAddress(),newClient.getCommons());
 				List<String> groupsCommons=newClient.getCommons();
 				for(String str:groupsCommons){
-					Log.d(TAG,"Group in common "+str);
+					Log.d(TAG,"Group in common: "+str);
 					ListEvent event=new ListEvent(eventsGenerator,newClient.getAddress());
 					event.setGroup(str);
 					this.launchEventToClients(event);
@@ -304,7 +299,19 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			NewGroupList newGroup=(NewGroupList)e;
 			ArrayList<ItemFile> files=new ArrayList<ItemFile>(newGroup.getFiles());
 			groupListFiles.addListFileToGroup(newGroup.getGroup(),files);
-			drawItems(newGroup.getGroup(),groupListFiles.getListFile(newGroup.getGroup()));
+			
+			final String group = newGroup.getGroup();
+			final ArrayList<ItemFile> filesToDraw = groupListFiles.getListFile(group);
+			//drawItems(newGroup.getGroup(),groupListFiles.getListFile(newGroup.getGroup()));
+			/* Da CalledFromWrongThreadException: Only the original thread that created
+			 * a view hierarchy can touch its views.
+			 * O sea, solo podemos llamar a drawItems desde el main thread, es decir
+			 * el thread de la UI. Para eso usamos runOnUiThread */
+			runOnUiThread(new Runnable() {
+				public void run() {
+					drawItems(group, filesToDraw);
+				}
+			});
 			
 		}
 		if(e instanceof ListCommons){
@@ -312,7 +319,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			ListCommons list=(ListCommons)e;
 			server.addGroupCommon(list.getAddress(),list.getCommons());
 		}
-		
 	}
 	
 	public void launchEventToClients(EventObject event){

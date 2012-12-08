@@ -127,14 +127,14 @@ public class ServerClient extends Thread implements ActivityEventsListener{
 						//Comparar los grupos que se reciben para ver si pertenecemos a alguno de esos grupos
 						List<String> commons=this.compareGroups(socketGroups,serverGroups);
 						for(String str:commons){
-							Log.d(TAG,str);
+							Log.d(TAG, "Common group: "+str);
 						}
 						if(commons.size()>0){
 							//Si tenemos algún grupo en común lo guardamos como cliente
 							parent.addActiveClient(address, this);
 							//Enviamos un message Authentication
 							Authentication at=new Authentication(userName);
-							at.setCommons((ArrayList)commons);
+							at.setCommons((ArrayList<String>)commons);
 							oos.writeObject(at);
 							Log.d(TAG, "Send Authentication message with commons groups to "+address);
 							NewClientEvent event=new NewClientEvent(parent.getGenerator(),address,at.getUser(),commons);
@@ -177,9 +177,9 @@ public class ServerClient extends Thread implements ActivityEventsListener{
 						continue;
 					}
 					if(aux instanceof ListRequest){
-						Log.d(TAG,"Received ListRequest message from "+address);
 						ListRequest list=(ListRequest)aux;
 						String group=list.getGroup();
+						Log.d(TAG,"Received ListRequest message from: "+address+" for group: "+group);
 						
 						if(datasource.groupExist(group)){
 							List<DbFile> files=datasource.getFilesGroup(group);
@@ -189,6 +189,7 @@ public class ServerClient extends Thread implements ActivityEventsListener{
 								ItemFile auxItem=new ItemFile(file,this.userName,datasource.getFileType(file.getType()));
 								auxItem.setAddress(address);
 								items.add(auxItem);
+								Log.d(TAG, "Added to ListAnswer: "+file.toString());
 							}
 							ListAnswer listA=new ListAnswer((ArrayList<ItemFile>)items,group);
 							oos.writeObject(listA);
