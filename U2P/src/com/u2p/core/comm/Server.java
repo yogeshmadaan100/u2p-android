@@ -130,7 +130,7 @@ public class Server extends Thread{
 			Log.d(TAG,"Server listening on port "+port);
 			while(true){
 				Socket socket=ssocket.accept();
-				Client sClient=new Client(socket,socket.getInetAddress(),datasource,this);
+				Client sClient=new Client(socket,socket.getInetAddress(),datasource,this,false);
 				sClient.start();
 				Log.d(TAG,"New client connected: "+socket.getInetAddress());
 			}

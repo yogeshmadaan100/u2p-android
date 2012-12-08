@@ -366,9 +366,18 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
 		
 		if(service!=null){
-			Client client=new Client(service.getHost(),service.getPort(),datasource,server);
-			Toast.makeText(getApplicationContext(), "Connect to "+service.getServiceName()+" on port "+service.getPort(), Toast.LENGTH_SHORT).show();
-			client.start();
+			
+			//try {
+				//InetAddress ip=InetAddress.getByName("192.168.1.100");
+				//Client client=new Client(ip,2664,datasource,server,true);
+				Client client=new Client(service.getHost(),service.getPort(),datasource,server,true);
+				Toast.makeText(getApplicationContext(), "Connect to "+service.getServiceName()+" on port "+service.getPort(), Toast.LENGTH_SHORT).show();
+				client.start();
+			//} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+			//	e.printStackTrace();
+			//}
+
 		}else{
 			Toast.makeText(getApplicationContext(), "Service not found", Toast.LENGTH_SHORT).show();
 		}
