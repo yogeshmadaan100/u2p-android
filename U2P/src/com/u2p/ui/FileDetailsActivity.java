@@ -75,6 +75,8 @@ public class FileDetailsActivity extends Activity {
     	rating = 1;
     	Toast.makeText(getApplicationContext(), "+1", Toast.LENGTH_SHORT).show();
     }
+    /*Hacer solo un onRate y meter el resultado en el intent, hacer una variable
+     * que diga si ya has votado, si ya votaste no puedes volver a hacerlo*/
     
     public void onRateBadClick(MenuItem item){
     	rating = -1;
