@@ -5,6 +5,8 @@ import java.util.EventObject;
 import java.util.List;
 
 public class ListCommons extends EventObject{
+	private static final long serialVersionUID = 1L;
+
 	private List<String> commons;
 	private InetAddress address;
 	
@@ -12,7 +14,6 @@ public class ListCommons extends EventObject{
 		super(source);
 		this.address=address;
 		this.commons=commons;
-		// TODO Auto-generated constructor stub
 	}
 
 	public List<String> getCommons() {
@@ -30,10 +31,4 @@ public class ListCommons extends EventObject{
 	public void setAddress(InetAddress address) {
 		this.address = address;
 	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 }

@@ -21,7 +21,7 @@ public class FileDetailsActivity extends Activity {
 	 * no se envia el resultado */
 	
 	private static final String TAG = "FileDetailsActivity";
-    private static final String FILE_TO_DOWNLAOD = "download";
+    private static final String FILE_TO_DOWNLOAD = "download";
     private static final String RATING = "rating";
 	private ItemFile item;
 	private int rating;
@@ -62,10 +62,10 @@ public class FileDetailsActivity extends Activity {
     }
 
     public void onImageClick(View v){
-    	result.putExtra(FILE_TO_DOWNLAOD, item);
+    	result.putExtra(FILE_TO_DOWNLOAD, item);
     	setResult(Activity.RESULT_OK, result);
-    	/*if(rating!=0)
-    		result.putExtra(RATING, rating);*/
+    	if(rating!=0)
+    		result.putExtra(RATING, rating);
     	Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
     	Log.d(TAG, "Download started");
     	finish();
@@ -73,7 +73,6 @@ public class FileDetailsActivity extends Activity {
     
     public void onRateGoodClick(MenuItem item){
     	rating = 1;
-    	result.putExtra(RATING, rating);
     	Toast.makeText(getApplicationContext(), "+1", Toast.LENGTH_SHORT).show();
     }
     

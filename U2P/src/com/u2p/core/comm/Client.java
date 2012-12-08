@@ -132,7 +132,7 @@ public class Client extends Thread implements ActivityEventsListener{
 					FileAnswer fileA=(FileAnswer)aux;
 					//Si da tiempo lo desciframos
 					//Escribimos archivo
-					File path=new File(Environment.getExternalStorageDirectory()+""+datasource.getMaindir()+""+fileA.getGroup());
+					File path=new File(Environment.getExternalStorageDirectory()+""+datasource.getMaindir()+""+fileA.getGroup());//<-Falta una barra?
 					fileA.write(path.getPath());
 					//Enviamos ACK
 					Log.d(TAG,"Write file "+fileA.getFilename());

@@ -69,6 +69,7 @@ public class Server extends Thread{
 	}
 	
 	public synchronized void addGroupCommon(InetAddress address,List<String> commons){
+		//Si ya tiene el address en groupsCommons, ¿no puedes añadir más grupos comunes?
 		if(!groupsCommons.containsKey(address)){
 			groupsCommons.put(address,commons);
 			Log.d(TAG, "Add new list commons to client "+address);

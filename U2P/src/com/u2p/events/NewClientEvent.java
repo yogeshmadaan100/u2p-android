@@ -15,12 +15,8 @@ public class NewClientEvent extends EventObject{
 		this.address=address;
 		this.user=user;
 		this.commons=commons;
-		// TODO Auto-generated constructor stub
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public InetAddress getAddress() {
