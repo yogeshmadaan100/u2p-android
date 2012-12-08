@@ -24,7 +24,7 @@ public class FileDetailsActivity extends Activity {
     private static final String FILE_TO_DOWNLOAD = "download";
     private static final String RATING = "rating";
 	private ItemFile item;
-	private int rating;
+	private int rating = 0;
 	private Intent result;
 	
     @Override
@@ -33,7 +33,6 @@ public class FileDetailsActivity extends Activity {
         setContentView(R.layout.activity_file_details);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
-        rating = 0;
         result = this.getIntent();
         
         item = (ItemFile) getIntent().getSerializableExtra("CALLER_ITEM");
@@ -93,5 +92,12 @@ public class FileDetailsActivity extends Activity {
             	return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    @Override
+    public void onBackPressed() {
+    	Log.d(TAG, "Pausing");
+    	setResult(Activity.RESULT_OK, result);
+    	super.onBackPressed();
     }
 }
