@@ -1,6 +1,8 @@
 package com.u2p.ui;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -10,6 +12,8 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.SQLException;
 import android.net.nsd.NsdServiceInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -25,13 +29,11 @@ import android.widget.Toast;
 
 import com.u2p.core.comm.Client;
 import com.u2p.core.comm.Server;
-import com.u2p.core.comm.ServerClient;
 import com.u2p.core.db.DbDataSource;
 import com.u2p.core.db.DbFile;
 import com.u2p.core.nsd.NsdHelper;
 import com.u2p.events.ActivityEventsGenerator;
 import com.u2p.events.FileEvent;
-import com.u2p.events.ListCommons;
 import com.u2p.events.ListEvent;
 import com.u2p.events.NewClientEvent;
 import com.u2p.events.NewGroupList;
@@ -47,6 +49,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
+	private InetAddress localIp;
 	private GroupListFile groupListFiles;
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
@@ -89,8 +92,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		mNsdHelper = new NsdHelper(this);
 		mNsdHelper.initializeResolveListener();
 		Log.d(TAG,"NSD: Initialize Resolve Listener");
+		
+		this.localIp=this.getWifiIp();
+		if(this.localIp==null)
+			Log.d(TAG,"No wifi connected");
+		else{
+			Log.d(TAG,"Wifi connected ip:"+this.localIp);
+		}
+		
 		server=new Server(PORT,datasource,this);
 		server.start();
+		
 		
 		List<String> groups=datasource.getAllGroups();
 		for(String group:groups){
@@ -104,7 +116,35 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		}
 
     }
-
+    
+    public void ToasIt(String message){
+    	Toast.makeText(getApplicationContext(), message,Toast.LENGTH_SHORT).show();
+    }
+    public InetAddress getWifiIp(){
+    	WifiManager wifiManager=(WifiManager)getSystemService(WIFI_SERVICE);
+    	if(wifiManager.isWifiEnabled()){
+	    	WifiInfo wifiInfo=wifiManager.getConnectionInfo();
+	    	
+			int myIp=wifiInfo.getIpAddress();
+			int intMyIp3=myIp/0x1000000;
+			int intMyIp3mod=myIp%0x1000000;
+			
+			int intMyIp2=intMyIp3mod/0x10000;
+			int intMyIp2mod=intMyIp3mod%0x10000;
+			
+			int intMyIp1=intMyIp2mod/0x100;
+			int intMyIp0=intMyIp2mod%0x100;
+			String ip=String.valueOf(intMyIp0)+"."+String.valueOf(intMyIp1)+
+					"."+String.valueOf(intMyIp2)+"."+String.valueOf(intMyIp3);
+	    	try {
+				return InetAddress.getByName(ip);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				Log.e(TAG,"UnknownHostException");
+			}
+    	}
+    	return null;
+    }
     private void drawItems(String group,ArrayList<ItemFile> items){
 		if(items!=null){
 	        ListView lv = (ListView) findViewById(R.id.listView);
@@ -190,6 +230,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		ArrayList<ItemFile> list=new ArrayList<ItemFile>();
     		List<String> groups=datasource.getAllGroups();
 			group = groups.get(actionBar.getSelectedNavigationIndex());
+			Log.d(TAG, "Selected navigation "+group);
     		for(File file : files){
     			String fileName = file.getName();
     			String uri = file.getAbsolutePath();
@@ -212,6 +253,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		FileEvent fileEvent=new FileEvent(eventsGenerator,item.getAddress());
     		fileEvent.setGroupAndFile(item.getGroup(),item.getName());
     		eventsGenerator.addEvent(fileEvent);
+    		Log.d(TAG,"Send event File Event file "+item.getName()+" group "+item.getGroup());
     	}
     	else
     		Log.d(TAG, "Something went wrong. ReqC: "+requestCode+" ResC: "+resultCode);
@@ -263,27 +305,14 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Log.d(TAG,"Receive event NewClient");
 			NewClientEvent newClient=(NewClientEvent)e;
 			//Pedir lista de ficheros al cliente
-			ServerClient sclient;
-			Client client;
-			boolean notNull=false;
-			if(server.isService()){
-				sclient=(ServerClient)server.getActiveClient(newClient.getAddress());
-				if(sclient!=null){
-					Log.d(TAG,"Active client "+sclient.getAdress());
-					eventsGenerator.addListener(sclient);
-					notNull=true;
-				}
-			}else{
-				client=(Client)server.getActiveClient(newClient.getAddress());
-				if(client!=null){
-					Log.d(TAG,"Active client "+client.getAddress());
-					eventsGenerator.addListener(client);
-					notNull=true;
-				}
-			}
-			if(notNull){
+			
+			Client client=server.getActiveClient(newClient.getAddress());
+			if(client!=null){
+				Log.d(TAG,"Active client "+client.getAddress());
+				eventsGenerator.addListener(client);
 				server.addGroupCommon(newClient.getAddress(),newClient.getCommons());
 				List<String> groupsCommons=newClient.getCommons();
+				
 				for(String str:groupsCommons){
 					Log.d(TAG,"Group in common: "+str);
 					ListEvent event=new ListEvent(eventsGenerator,newClient.getAddress());
@@ -313,11 +342,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			});
 			
 		}
-		if(e instanceof ListCommons){
-			Log.d(TAG,"Receive event ListCommons");
-			ListCommons list=(ListCommons)e;
-			server.addGroupCommon(list.getAddress(),list.getCommons());
-		}
 	}
 	
 	public void launchEventToClients(EventObject event){
@@ -342,7 +366,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
 		
 		if(service!=null){
-			Client client=new Client(service.getHost(),service.getPort(),datasource,this);
+			Client client=new Client(service.getHost(),service.getPort(),datasource,server);
 			Toast.makeText(getApplicationContext(), "Connect to "+service.getServiceName()+" on port "+service.getPort(), Toast.LENGTH_SHORT).show();
 			client.start();
 		}else{

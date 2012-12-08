@@ -25,7 +25,7 @@ public class DbDataSource {
 			,DbU2P.GROUP_COLUM_URI,DbU2P.GROUP_COLUM_POSITIVE,DbU2P.GROUP_COLUM_NEGATIVE};
 	
 	private HashMap<String, String> typeMap = new HashMap<String,String>();
-	private static final String mainDir = "//A-U2P-files";
+	private static final String mainDir = "//A-U2P-files/";
 	
 	public DbDataSource(Context context){
 		dbHelper=new DbU2P(context);
@@ -106,6 +106,7 @@ public class DbDataSource {
 			
 			cursor.moveToFirst();
 			DbFile newFile=cursorToFile(cursor);
+			newFile.setGroup(group);
 			cursor.close();			
 			newFile.setGroup(group);
 			groups.addFileToGroup(group, newFile);
@@ -278,7 +279,7 @@ public class DbDataSource {
 	public boolean existsFile(String group,String filename){
 		if(this.tableExist(group)){
 			Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM "+group+" WHERE "+DbU2P.GROUP_COLUM_NAME+
-					"="+filename,null);
+					"=?",new String[] {filename});
 			if(!cursor.moveToFirst()){
 				return false;
 			}
