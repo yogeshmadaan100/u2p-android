@@ -93,13 +93,13 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		mNsdHelper.initializeResolveListener();
 		Log.d(TAG,"NSD: Initialize Resolve Listener");
 		
-		this.localIp=this.getWifiIp();
+		/*this.localIp=this.getWifiIp();
 		if(this.localIp==null)
 			Log.d(TAG,"No wifi connected");
 		else{
 			Log.d(TAG,"Wifi connected ip:"+this.localIp);
 		}
-		
+		*/
 		server=new Server(PORT,datasource,this);
 		server.start();
 		
@@ -120,7 +120,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     public void ToasIt(String message){
     	Toast.makeText(getApplicationContext(), message,Toast.LENGTH_SHORT).show();
     }
-    public InetAddress getWifiIp(){
+   /* public InetAddress getWifiIp(){
     	WifiManager wifiManager=(WifiManager)getSystemService(WIFI_SERVICE);
     	if(wifiManager.isWifiEnabled()){
 	    	WifiInfo wifiInfo=wifiManager.getConnectionInfo();
@@ -144,7 +144,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			}
     	}
     	return null;
-    }
+    }*/
     private void drawItems(String group,ArrayList<ItemFile> items){
 		if(items!=null){
 	        ListView lv = (ListView) findViewById(R.id.listView);
