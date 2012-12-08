@@ -51,9 +51,11 @@ public class Client extends Thread implements ActivityEventsListener{
 	private DbDataSource datasource;
 	private Server parent;
 	private List<String> commons;
+	private int port;
 	private boolean sendAuthentication;
+	private boolean client;
 	
-	public Client(Socket socket,InetAddress address, DbDataSource datasource, Server parent){
+	public Client(Socket socket,InetAddress address, DbDataSource datasource, Server parent,boolean client){
 		this.socket=socket;
 		this.address=address;
 		this.datasource=datasource;
@@ -62,25 +64,18 @@ public class Client extends Thread implements ActivityEventsListener{
 		this.userName=datasource.getUser(1).getUser();
 		this.commons=new ArrayList<String>();
 		this.sendAuthentication=false;
+		this.client=client;
 	}
-	public Client(InetAddress address, int port,DbDataSource datasource, Server parent){
-		
-		try {
-			this.address=address;
-			this.socket=new Socket();
-			
-			this.socket.connect(new InetSocketAddress(address,port),5000);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "Error connect with the client "+address);
-		}
-		
+	public Client(InetAddress address, int port,DbDataSource datasource, Server parent,boolean client){
+		this.address=address;
 		this.datasource=datasource;
 		this.parent=parent;
 		end=false;
+		this.port=port;
 		this.userName=datasource.getUser(1).getUser();
 		this.commons=new ArrayList<String>();
 		this.sendAuthentication=false;
+		this.client=client;
 	}	
 
 	public void close() throws IOException{
@@ -137,6 +132,17 @@ public class Client extends Thread implements ActivityEventsListener{
 	
 	public void run(){
 		try{
+			if(client){
+				try {
+					this.address=address;
+					this.socket=new Socket();
+					
+					this.socket.connect(new InetSocketAddress(this.address,this.port),5000);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Log.e(TAG, "Error connect with the client "+address);
+				}
+			}
 			Log.d(TAG, "Client start, openning streams");
 			out=socket.getOutputStream();
 			oos=new ObjectOutputStream(out);
