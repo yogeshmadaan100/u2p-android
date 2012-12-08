@@ -72,6 +72,7 @@ public class Client extends Thread implements ActivityEventsListener{
 		this.parent=parent;
 		end=false;
 		this.port=port;
+		
 		this.userName=datasource.getUser(1).getUser();
 		this.commons=new ArrayList<String>();
 		this.sendAuthentication=false;
@@ -150,6 +151,7 @@ public class Client extends Thread implements ActivityEventsListener{
 			in=socket.getInputStream();
 			ois=new ObjectInputStream(in);
 			try{
+				
 				if(!parent.isService()){
 					//Mandamos primer mensaje
 					oos.writeObject(makeAuthenticationMessage());
