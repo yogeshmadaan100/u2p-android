@@ -64,8 +64,11 @@ public class Client extends Thread implements ActivityEventsListener{
 		this.sendAuthentication=false;
 	}
 	public Client(InetAddress address, int port,DbDataSource datasource, Server parent){
-		this.address=address;
+		
 		try {
+			this.address=address;
+			this.socket=new Socket();
+			
 			this.socket.connect(new InetSocketAddress(address,port),5000);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
