@@ -34,5 +34,8 @@
     <string name="share_files">Share</string>
     <string name="createService">Create service</string>
     <string name="connectService">Connect</string>
+    <string name="goUp">Go Up</string>
+    <string name="directories">Directories</string>
+    <string name="files">Files</string>
 
 </resources>
