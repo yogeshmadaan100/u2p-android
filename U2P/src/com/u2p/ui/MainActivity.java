@@ -242,18 +242,21 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		drawItems(group,groupListFiles.getListFile(group));
     		Log.d(TAG, files.toString());
     	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
-    		ItemFile item = (ItemFile) data.getSerializableExtra(FILE_TO_DOWNLOAD);
-    		Log.d(TAG, "Download request for: "+item.getName());
     		int rating = data.getIntExtra(RATING, 0);
     		if(rating != 0)
     			Log.d(TAG, "Rating +"+rating);
     		else
     			Log.d(TAG, "File was not rated");
     		
-    		FileEvent fileEvent=new FileEvent(eventsGenerator,item.getAddress());
-    		fileEvent.setGroupAndFile(item.getGroup(),item.getName());
-    		eventsGenerator.addEvent(fileEvent);
-    		Log.d(TAG,"Send event File Event file "+item.getName()+" group "+item.getGroup());
+    		ItemFile item = (ItemFile) data.getSerializableExtra(FILE_TO_DOWNLOAD);
+    		if(item != null){
+    			Log.d(TAG, "Download request for: "+item.getName());
+
+    			FileEvent fileEvent=new FileEvent(eventsGenerator,item.getAddress());
+    			fileEvent.setGroupAndFile(item.getGroup(),item.getName());
+    			eventsGenerator.addEvent(fileEvent);
+    			Log.d(TAG,"Send event File Event file "+item.getName()+" group "+item.getGroup());
+    		}
     	}
     	else
     		Log.d(TAG, "Something went wrong. ReqC: "+requestCode+" ResC: "+resultCode);
