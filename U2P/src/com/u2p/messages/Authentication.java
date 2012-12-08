@@ -7,7 +7,6 @@ import java.util.HashMap;
 public class Authentication implements Serializable {
 	private HashMap<String,String> groups;
 	private String user;
-	private ArrayList<String> commons;
 	/**
 	 * 
 	 */
@@ -18,15 +17,7 @@ public class Authentication implements Serializable {
 		this.user=user;
 		groups=new HashMap<String,String>();
 	}
-	
-	public ArrayList<String> getCommons(){
-		return this.commons;
-	}
-	
-	public void setCommons(ArrayList<String> commons){
-		this.commons=commons;
-	}
-	
+		
 	public void setGroups(HashMap<String,String> groups){
 		this.groups=groups;
 	}

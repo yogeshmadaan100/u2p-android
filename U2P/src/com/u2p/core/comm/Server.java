@@ -5,63 +5,59 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.u2p.core.db.DbDataSource;
-import com.u2p.events.ChangesClientEvents;
 import com.u2p.events.ServerEventsGenerator;
 import com.u2p.ui.MainActivity;
 
 public class Server extends Thread{
 	private ServerSocket ssocket;
 	private ServerEventsGenerator eventsGenerator;
-	private HashMap<InetAddress,Thread> activeClients;
+	private HashMap<InetAddress,Client> activeClients;
 	private HashMap<InetAddress,List<String>> groupsCommons;
+	private MainActivity activity;
 	private int port;
 	private static final String TAG="Server";
 	private DbDataSource datasource;
 	private boolean isService;
 	
 	public static final int ACK_END=-1;
-	public static final int ACK_ERROR_FILE=4;
-	public static final int LIST_REQUEST_ERROR=1;
+	public static final int ACK_LIST_REQUEST_ERROR=1;
 	public static final int LIST_SEND=2;
 	public static final int FILE_SEND=3;
+	public static final int ACK_ERROR_FILE=4;
 
-
-	
-	public static final int EVENT_CHANGE_CLIENTS=1;
-	public static final int EVENT_NEW_CLIENT=2;
-	
 	public Server(int port,DbDataSource datasource,MainActivity activity){
 		this.port=port;
+		this.activity=activity;
 		this.datasource=datasource;
-		activeClients=new HashMap<InetAddress,Thread>();
+		activeClients=new HashMap<InetAddress,Client>();
 		groupsCommons=new HashMap<InetAddress,List<String>>();
 		this.eventsGenerator=new ServerEventsGenerator();
 		eventsGenerator.addListener(activity);
+	}
+	public void ToastIt(String message){
+		activity.ToasIt(message);
 	}
 	public void setService(boolean service){
 		this.isService=service;
 	}
 	
+
 	public boolean isService(){
 		return this.isService;
 	}
 	public ServerEventsGenerator getGenerator(){
 		return this.eventsGenerator;
 	}
-	public void launchEventToActivity(EventObject event,int type){
-		if(type==this.EVENT_NEW_CLIENT){
-			eventsGenerator.addEvent(event);
-		}
-	}
 	
-	public synchronized void addActiveClient(InetAddress address,Thread client){
+	public synchronized void addActiveClient(InetAddress address,Client client){
 		if(!activeClients.containsKey(address)){
 			activeClients.put(address,client);
 			Log.d(TAG, "Add new active client "+address);
@@ -85,7 +81,7 @@ public class Server extends Thread{
 	
 	public void deleteActiveClient(InetAddress address){
 		if(!activeClients.containsKey(address)){
-			ServerClient client=(ServerClient)activeClients.get(address);
+			Client client=(Client)activeClients.get(address);
 			try {
 				client.close();
 			} catch (IOException e) {
@@ -99,20 +95,20 @@ public class Server extends Thread{
 	
 	public void deleteAllActiveClients(){
 		List<Thread> clients=new ArrayList<Thread>(activeClients.values());
-		ServerClient sClient=null;
+		Client sClient=null;
 		if(clients!=null){
 			for(Thread client:clients){
-				sClient=(ServerClient)client;
-				this.deleteActiveClient(sClient.getAdress());
+				sClient=(Client)client;
+				this.deleteActiveClient(sClient.getAddress());
 			}
 		}
 	}
 	
-	public HashMap<InetAddress,Thread> getAllActiveClient(){
+	public HashMap<InetAddress,Client> getAllActiveClient(){
 		return this.activeClients;
 	}
 	
-	public Thread getActiveClient(InetAddress client){
+	public Client getActiveClient(InetAddress client){
 		if(activeClients.containsKey(client)){
 			return activeClients.get(client);
 		}
@@ -134,10 +130,9 @@ public class Server extends Thread{
 			Log.d(TAG,"Server listening on port "+port);
 			while(true){
 				Socket socket=ssocket.accept();
-				Log.d(TAG,"New client connected: "+socket.getInetAddress());
-				ServerClient sClient=new ServerClient(socket,socket.getInetAddress(),datasource,this);
-				
+				Client sClient=new Client(socket,socket.getInetAddress(),datasource,this);
 				sClient.start();
+				Log.d(TAG,"New client connected: "+socket.getInetAddress());
 			}
 		}catch(IOException e){
 			Log.e(TAG,"IOException");

@@ -8,12 +8,11 @@ import com.u2p.core.comm.Client;
 
 public class NewClientEvent extends EventObject{
 	private InetAddress address;
-	private String user;
 	private List<String> commons;
-	public NewClientEvent(Object source,InetAddress address,String user,List<String> commons) {
+	
+	public NewClientEvent(Object source,InetAddress address,List<String> commons) {
 		super(source);
 		this.address=address;
-		this.user=user;
 		this.commons=commons;
 	}
 
@@ -25,14 +24,6 @@ public class NewClientEvent extends EventObject{
 
 	public void setAddress(InetAddress address) {
 		this.address = address;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
 	}
 
 	public List<String> getCommons() {
