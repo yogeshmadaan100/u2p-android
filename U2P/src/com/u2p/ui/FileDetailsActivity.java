@@ -15,10 +15,6 @@ import android.widget.Toast;
 import com.u2p.ui.component.ItemFile;
 
 public class FileDetailsActivity extends Activity {
-
-	/* El rating solo funciona si le das a descargar para salir
-	 * obviamente esto no es lo que queremos, cuando damos a volver 
-	 * no se envia el resultado */
 	
 	private static final String TAG = "FileDetailsActivity";
     private static final String FILE_TO_DOWNLOAD = "download";
@@ -83,13 +79,11 @@ public class FileDetailsActivity extends Activity {
             	rating = 1;
             	result.putExtra(RATING, rating);
             	result.putExtra(RATED_FILE, this.item);
-            	Toast.makeText(getApplicationContext(), "+1 in Intent", Toast.LENGTH_SHORT).show();
             	return true;
             case R.id.rating_bad:
             	rating = -1;
             	result.putExtra(RATING, rating);
             	result.putExtra(RATED_FILE, this.item);
-            	Toast.makeText(getApplicationContext(), "-1 in Intent", Toast.LENGTH_SHORT).show();
             	return true;
         }
         return super.onOptionsItemSelected(item);
