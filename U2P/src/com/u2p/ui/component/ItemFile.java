@@ -53,8 +53,7 @@ public class ItemFile implements Serializable{
 		int pos=file.getPositive();
 		int neg=file.getNegative();
 		int total = file.getPositive() + file.getNegative();
-		int rat = file.getPositive() - file.getNegative();
-		this.rating = Integer.toString(rat)+"/"+Integer.toString(total);
+		this.rating = Integer.toString(pos)+"/"+Integer.toString(total);
 		this.group=file.getGroup();
 	}
 	

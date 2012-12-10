@@ -253,11 +253,13 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     				Log.d(TAG, ratedFile.getName()+" was rated: +"+rating);
     				if(!ratedFile.getUser().equals(this.username)){
     					VoteEvent voteEvent=new VoteEvent(eventsGenerator,ratedFile.getAddress());
+    					ItemFile aux=groupListFiles.getFile(ratedFile.getGroup(),ratedFile.getName());
     					if(rating>0){
-    						ratedFile.setPositives(1);
+   	
     						voteEvent.vote(1);
+    						aux.setPositives(1);
     					}else if(rating<0){
-    						ratedFile.setNegatives(1);
+    						aux.setNegatives(1);
     						voteEvent.vote(-1);
     					}
     					voteEvent.setGroupAndFile(ratedFile.getGroup(),ratedFile.getName());
