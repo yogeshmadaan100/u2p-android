@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.util.Log;
+
 public class GroupListFile {
 	private HashMap<String,ArrayList<ItemFile>> listGroup;
 	
@@ -35,18 +37,23 @@ public class GroupListFile {
 		return null;
 	}
 	
-	public synchronized void addFileToGroup(ItemFile file){
+	public void addFileToGroup(ItemFile file){
 		if(listGroup.containsKey(file.getGroup())){
 			List<ItemFile> aux=listGroup.get(file.getGroup());
 			ItemFile auxFile = null;
 			for(ItemFile f:aux){
-				if(f.getName().equals(file.getName()))
+				Log.d("DB","f "+f.getName()+" "+file.getName());
+				if(f.getName().equals(file.getName())){
+					Log.d("DB","equals");
 					auxFile = f;
+				}
 				break;
 			}
 			if(auxFile != null){
 				aux.remove(auxFile);
-				aux.add(auxFile);
+				Log.d("DB","remove");
+				aux.add(file);
+				Log.d("DB","add");
 			}
 		}
 	}
