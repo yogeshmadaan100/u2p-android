@@ -418,7 +418,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Toast.makeText(getApplicationContext(), "Discover service...",Toast.LENGTH_SHORT).show();
 			mNsdHelper.discoverServices();
 		}
-		if(mNsdHelper.isConnected()){
+		if(mNsdHelper.isConnected() || mNsdHelper.isRegistered()){
 			List<String> groups=datasource.getAllGroups();
 			String group=groups.get(actionBar.getSelectedNavigationIndex());
 			Log.d(TAG,"Group selected "+group);

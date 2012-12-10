@@ -18,14 +18,25 @@ public class GroupListFile {
 			listGroup.put(group, files);
 		}else{
 			List<ItemFile> aux=listGroup.get(group);
+			List<String> auxNames = new ArrayList<String>();
+			for(ItemFile i: aux){
+				Log.d("GL", "AUX"+i.getName()+ " is in list PREVIOUS");
+				auxNames.add(i.getName());
+			}
+			for(ItemFile i: files)
+				Log.d("GL", "FILES: "+i.getName()+ " is in lis PREVIOUS");
 			if(aux.size()!=0){
 				for(ItemFile file:files){
-					if(!aux.contains(file))
+					if(!auxNames.contains(file.getName())){
 						aux.add(file);
+						Log.d("GL", file.getName()+" ADDED to list");
+					}
 				}
 			}else{
 				aux.addAll(files);
 			}
+			for(ItemFile i:aux)
+				Log.d("GL", i.getName() + " is in FINAL list");
 			/*List<ItemFile> toAdd = new ArrayList<ItemFile>();
 			if(aux.size()!=0){
 				for(ItemFile i:aux){

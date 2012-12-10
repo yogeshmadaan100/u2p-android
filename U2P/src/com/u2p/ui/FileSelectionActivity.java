@@ -84,6 +84,10 @@ public class FileSelectionActivity extends Activity {
         		resultFileList.add(fileList.get(i));
         	}
         }
+        if(resultFileList.isEmpty()){
+        	Log.d(TAG, "Nada seleccionado");
+        	finish();
+        }
         Log.d(TAG, "Files: "+resultFileList.toString());
         Intent result = this.getIntent();
         result.putExtra(FILES_TO_UPLOAD, resultFileList);
