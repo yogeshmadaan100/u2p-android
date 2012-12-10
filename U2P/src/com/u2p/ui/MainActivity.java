@@ -393,8 +393,14 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			}
 			
 			groupListFiles.addFileToGroup(aux);
+			final String group = vote.getGroup();
+			final ArrayList<ItemFile> filesToDraw = groupListFiles.getListFile(group);
 			Log.d(TAG,"After Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
-			drawItems(vote.getGroup(),groupListFiles.getListFile(vote.getGroup()));			
+			runOnUiThread(new Runnable() {
+				public void run() {
+					drawItems(group, filesToDraw);
+				}
+			});
 		}
 	}
 	
