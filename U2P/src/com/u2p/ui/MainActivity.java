@@ -2,7 +2,6 @@ package com.u2p.ui;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -12,8 +11,6 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.SQLException;
 import android.net.nsd.NsdServiceInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -98,13 +95,13 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		mNsdHelper.initializeResolveListener();
 		Log.d(TAG,"NSD: Initialize Resolve Listener");
 		
-		this.localIp=this.getWifiIp();
+		/*this.localIp=this.getWifiIp();
 		if(this.localIp==null)
 			Log.d(TAG,"No wifi connected");
 		else{
 			Log.d(TAG,"Wifi connected ip:"+this.localIp);
 		}
-		
+		*/
 		server=new Server(PORT,datasource,this);
 		server.start();
 		
@@ -128,7 +125,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     public void ToasIt(String message){
     	Toast.makeText(getApplicationContext(), message,Toast.LENGTH_SHORT).show();
     }
-    public InetAddress getWifiIp(){
+   /* public InetAddress getWifiIp(){
     	WifiManager wifiManager=(WifiManager)getSystemService(WIFI_SERVICE);
     	if(wifiManager.isWifiEnabled()){
 	    	WifiInfo wifiInfo=wifiManager.getConnectionInfo();
@@ -152,7 +149,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			}
     	}
     	return null;
-    }
+    }*/
     private void drawItems(String group,ArrayList<ItemFile> items){
 		if(items!=null){
 	        ListView lv = (ListView) findViewById(R.id.listView);
