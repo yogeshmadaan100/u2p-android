@@ -23,4 +23,15 @@ public class GroupListFile {
 	public ArrayList<ItemFile> getListFile(String group){
 		return this.listGroup.get(group);
 	}
+	
+	public ItemFile getFile(String group,String name){
+		if(listGroup.containsKey(group)){
+			List<ItemFile> aux=listGroup.get(group);
+			for(ItemFile file:aux){
+				if(file.getName().equals(name))
+					return file;
+			}
+		}
+		return null;
+	}
 }
