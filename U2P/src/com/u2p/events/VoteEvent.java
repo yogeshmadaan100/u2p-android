@@ -12,11 +12,8 @@ public class VoteEvent extends EventObject implements ActivityEvents{
 		super(source);
 		this.address=address;
 		this.vote=0;
-		// TODO Auto-generated constructor stub
 	}
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	
 	public void setGroupAndFile(String group,String file){
@@ -41,7 +38,6 @@ public class VoteEvent extends EventObject implements ActivityEvents{
 	}
 	
 	public InetAddress getAddress() {
-		// TODO Auto-generated method stub
 		return this.address;
 	}
 
