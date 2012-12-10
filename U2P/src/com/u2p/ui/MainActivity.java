@@ -360,11 +360,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			
 			final String group = newGroup.getGroup();
 			final ArrayList<ItemFile> filesToDraw = groupListFiles.getListFile(group);
-			runOnUiThread(new Runnable() {
-				public void run() {
+			//runOnUiThread(new Runnable() {
+			//	public void run() {
 					drawItems(group, filesToDraw);
-				}
-			});
+			//	}
+			//});
 		}
 	}
 	
