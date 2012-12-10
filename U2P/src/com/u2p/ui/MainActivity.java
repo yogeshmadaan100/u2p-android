@@ -252,12 +252,14 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     			if(ratedFile!=null){
     				Log.d(TAG, ratedFile.getName()+" was rated: +"+rating);
     				if(!ratedFile.getUser().equals(this.username)){
-    					if(rating>0){
-    						ratedFile.setPositives(rating);
-    					}else if(rating<0){
-    						ratedFile.setNegatives(rating);
-    					}
     					VoteEvent voteEvent=new VoteEvent(eventsGenerator,ratedFile.getAddress());
+    					if(rating>0){
+    						ratedFile.setPositives(1);
+    						voteEvent.vote(1);
+    					}else if(rating<0){
+    						ratedFile.setNegatives(1);
+    						voteEvent.vote(-1);
+    					}
     					voteEvent.setGroupAndFile(ratedFile.getGroup(),ratedFile.getName());
     					eventsGenerator.addEvent(voteEvent);
     					Log.d(TAG, "Launch Vote Event to "+ratedFile.getAddress());
