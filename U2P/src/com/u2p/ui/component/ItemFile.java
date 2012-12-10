@@ -27,8 +27,8 @@ public class ItemFile implements Serializable{
 		this.user = user;
 		File f = new File(file.getUri());
 		this.size = Integer.toString((int)f.length());
-		int pos=file.getPositive();
-		int neg=file.getNegative();
+		pos=file.getPositive();
+		neg=file.getNegative();
 		int total = pos+neg;
 		this.rating = Integer.toString(pos)+"/"+Integer.toString(total);
 		this.group=file.getGroup();
