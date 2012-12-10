@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.u2p.core.db.DbDataSource;
 import com.u2p.events.ServerEventsGenerator;
@@ -79,6 +77,21 @@ public class Server extends Thread{
 		return null;
 	}
 	
+	public List<InetAddress> getCommonsClient(String group){
+		List<InetAddress> clients=new ArrayList<InetAddress>();
+		List<InetAddress> keys=new ArrayList<InetAddress>(groupsCommons.keySet());
+		
+		for(InetAddress inet:keys){
+			List<String> values=groupsCommons.get(inet);
+			for(String gr:values){
+				if(gr.equals(group)){
+					clients.add(inet);
+				}
+			}
+		}
+		return clients;
+	}
+	
 	public void deleteActiveClient(InetAddress address){
 		if(!activeClients.containsKey(address)){
 			Client client=(Client)activeClients.get(address);
@@ -103,7 +116,9 @@ public class Server extends Thread{
 			}
 		}
 	}
-	
+	public List<InetAddress> getAddressClientsActive(){
+		return new ArrayList<InetAddress>(activeClients.keySet());
+	}
 	public HashMap<InetAddress,Client> getAllActiveClient(){
 		return this.activeClients;
 	}

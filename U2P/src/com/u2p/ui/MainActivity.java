@@ -419,7 +419,19 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			mNsdHelper.discoverServices();
 		}
 		if(mNsdHelper.isConnected()){
-			//refrescar contenido
+			List<String> groups=datasource.getAllGroups();
+			String group=groups.get(actionBar.getSelectedNavigationIndex());
+			Log.d(TAG,"Group selected "+group);
+			List<InetAddress> actives=server.getCommonsClient(group);
+			Log.d(TAG,"Client in common "+actives.size());
+			
+			for(InetAddress client:actives){
+				ListEvent event=new ListEvent(eventsGenerator,client);
+				event.setGroup(group);
+				eventsGenerator.addEvent(event);
+				Log.d(TAG,"Launch event List to "+client);
+			}
+			
 			
 		}
 	}
