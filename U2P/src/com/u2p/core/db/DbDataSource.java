@@ -149,12 +149,18 @@ public class DbDataSource {
 		if(this.tableExist(group)){
 			ContentValues values=new ContentValues();
 			if(vote!=0){
+				Cursor cursor=database.query(group,new String[]{DbU2P.GROUP_COLUM_POSITIVE,DbU2P.GROUP_COLUM_NEGATIVE},
+						DbU2P.GROUP_COLUM_NAME+" =? ", new String[]{filename},null,null,null);				
+				cursor.moveToFirst();
+				int positive=cursor.getInt(0);
+				int negative=cursor.getInt(1);
+				cursor.close();
 				if(vote>0){
-					values.put(DbU2P.GROUP_COLUM_POSITIVE,1);
-					values.put(DbU2P.GROUP_COLUM_NEGATIVE,0);
+					values.put(DbU2P.GROUP_COLUM_POSITIVE,positive+1);
+					values.put(DbU2P.GROUP_COLUM_NEGATIVE,negative);
 				}else{
-					values.put(DbU2P.GROUP_COLUM_NEGATIVE,1);
-					values.put(DbU2P.GROUP_COLUM_POSITIVE,0);
+					values.put(DbU2P.GROUP_COLUM_NEGATIVE,negative+1);
+					values.put(DbU2P.GROUP_COLUM_POSITIVE,positive);
 				}
 				database.update(group, values, DbU2P.GROUP_COLUM_NAME+"=?", new String[]{filename});
 				Log.d(DbDataSource.class.getName(),"Vote file "+filename+" group "+group);
