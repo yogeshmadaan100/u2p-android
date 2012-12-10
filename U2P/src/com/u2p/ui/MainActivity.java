@@ -266,7 +266,9 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     					voteEvent.setGroupAndFile(ratedFile.getGroup(),ratedFile.getName());
     					eventsGenerator.addEvent(voteEvent);
     					Log.d(TAG, "Launch Vote Event to "+ratedFile.getAddress());
+
     					drawItems(ratedFile.getGroup(),groupListFiles.getListFile(ratedFile.getGroup()));
+
     				}else{
     					Log.d(TAG, "Owner can't vote");
     				}
@@ -360,11 +362,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			
 			final String group = newGroup.getGroup();
 			final ArrayList<ItemFile> filesToDraw = groupListFiles.getListFile(group);
-			//runOnUiThread(new Runnable() {
-			//	public void run() {
+			runOnUiThread(new Runnable() {
+				public void run() {
 					drawItems(group, filesToDraw);
-			//	}
-			//});
+				}
+			});
 		}
 	}
 	
