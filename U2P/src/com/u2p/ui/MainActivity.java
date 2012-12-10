@@ -262,6 +262,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     						aux.setNegatives(1);
     						voteEvent.vote(-1);
     					}
+    					groupListFiles.addFileToGroup(aux);
     					voteEvent.setGroupAndFile(ratedFile.getGroup(),ratedFile.getName());
     					eventsGenerator.addEvent(voteEvent);
     					Log.d(TAG, "Launch Vote Event to "+ratedFile.getAddress());
