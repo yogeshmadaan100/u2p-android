@@ -137,6 +137,8 @@ public class ItemFile implements Serializable{
 	}
 
 	public String getRating() {
+		int total = pos+neg;
+		this.rating = Integer.toString(pos)+"/"+Integer.toString(total);
 		return rating;
 	}
 
