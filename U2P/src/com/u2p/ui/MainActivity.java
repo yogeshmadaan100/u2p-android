@@ -2,7 +2,6 @@ package com.u2p.ui;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -12,8 +11,6 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.SQLException;
 import android.net.nsd.NsdServiceInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -38,6 +35,7 @@ import com.u2p.events.ListEvent;
 import com.u2p.events.NewClientEvent;
 import com.u2p.events.NewGroupList;
 import com.u2p.events.ServerEventsListener;
+import com.u2p.events.VoteEvent;
 import com.u2p.ui.adapters.ItemFileAdapter;
 import com.u2p.ui.component.GroupListFile;
 import com.u2p.ui.component.ItemFile;
@@ -49,6 +47,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private DialogFragment newFragment;
 	private NsdHelper mNsdHelper;
 	private Server server;
+	private String username;
 	private InetAddress localIp;
 	private GroupListFile groupListFiles;
 	private ActivityEventsGenerator eventsGenerator;
@@ -89,7 +88,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	Log.e(TAG,"No default user");
         	loginDialog();
         }
-        
+        this.username=datasource.getUser(1).getUser();
         this.refreshGroups();
         //Comunicaciones
 		mNsdHelper = new NsdHelper(this);
@@ -246,9 +245,25 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		Log.d(TAG, files.toString());
     	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
     		int rating = data.getIntExtra(RATING, 0);
-    		ItemFile ratedFile = (ItemFile) data.getSerializableExtra(RATED_FILE);
     		if(rating != 0){
-    			Log.d(TAG, ratedFile.getName()+" was rated: +"+rating);
+    			ItemFile ratedFile = (ItemFile) data.getSerializableExtra(RATED_FILE);
+    			if(ratedFile!=null){
+    				Log.d(TAG, ratedFile.getName()+" was rated: +"+rating);
+    				if(!ratedFile.getUser().equals(this.username)){
+    					if(rating>0){
+    						ratedFile.setPositives(rating);
+    					}else if(rating<0){
+    						ratedFile.setNegatives(rating);
+    					}
+    					VoteEvent voteEvent=new VoteEvent(eventsGenerator,ratedFile.getAddress());
+    					voteEvent.setGroupAndFile(ratedFile.getGroup(),ratedFile.getName());
+    					eventsGenerator.addEvent(voteEvent);
+    					Log.d(TAG, "Launch Vote Event to "+ratedFile.getAddress());
+    					drawItems(ratedFile.getGroup(),groupListFiles.getListFile(ratedFile.getGroup()));
+    				}else{
+    					Log.d(TAG, "Owner can't vote");
+    				}
+    			}
     		}
     		else{
     			Log.d(TAG, "File was not rated");

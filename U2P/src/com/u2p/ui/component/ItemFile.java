@@ -10,6 +10,7 @@ public class ItemFile implements Serializable{
 
 	private static final long serialVersionUID = 8858451646619645528L;
 	protected long id;
+	private int pos,neg;
 	protected String rutaImagen;
 	protected String name;
 	protected String user;
@@ -26,6 +27,8 @@ public class ItemFile implements Serializable{
 		this.user = user;
 		this.size = size;
 		this.rating = rating;
+		this.pos=0;
+		this.neg=0;
 	}
 	
 	public ItemFile(long id, String rutaImagen, String name, String user,
@@ -47,6 +50,8 @@ public class ItemFile implements Serializable{
 		this.user = user;
 		File f = new File(file.getUri());
 		this.size = Integer.toString((int)f.length());
+		int pos=file.getPositive();
+		int neg=file.getNegative();
 		int total = file.getPositive() + file.getNegative();
 		int rat = file.getPositive() - file.getNegative();
 		this.rating = Integer.toString(rat)+"/"+Integer.toString(total);
@@ -66,6 +71,22 @@ public class ItemFile implements Serializable{
 		this.name = name;
 		this.size = size;
 		this.rating = rating;
+	}
+
+	public int getPositives() {
+		return pos;
+	}
+
+	public void setPositives(int pos) {
+		this.pos = this.pos+pos;
+	}
+
+	public int getNegatives() {
+		return neg;
+	}
+
+	public void setNegatives(int neg) {
+		this.neg = this.neg+neg;
 	}
 
 	public void setAddress(InetAddress address){

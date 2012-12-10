@@ -150,10 +150,13 @@ public class DbDataSource {
 			int v=0;
 			ContentValues values=new ContentValues();
 			if(vote!=0){
-				if(vote>0)
+				if(vote>0){
 					values.put(DbU2P.GROUP_COLUM_POSITIVE,1);
-				else
-					values.put(DbU2P.GROUP_COLUM_NEGATIVE,-1);
+					values.put(DbU2P.GROUP_COLUM_NEGATIVE,0);
+				}else{
+					values.put(DbU2P.GROUP_COLUM_NEGATIVE,1);
+					values.put(DbU2P.GROUP_COLUM_POSITIVE,0);
+				}
 				database.update(group, values, DbU2P.GROUP_COLUM_NAME+"=?", new String[]{filename});
 				Log.d(DbDataSource.class.getName(),"Vote file "+filename+" group "+group);
 			}
