@@ -22,7 +22,7 @@ public class GroupListFile {
 			if(aux.size()!=0){
 				for(ItemFile i:aux){
 					for(ItemFile f:files){
-						if(!aux.contains(f))
+						if(!aux.contains(f) && !toAdd.contains(f))
 							toAdd.add(f);
 					}
 				}
