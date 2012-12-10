@@ -259,13 +259,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     					
     					if(rating>0){
     						voteEvent.vote(1);
-    						aux.setPositives(1);
+    						Log.d(TAG,"rating >0");
+    						aux.setPositives();
     					}else if(rating<0){
-    						aux.setNegatives(1);
+    						aux.setNegatives();
+    						Log.d(TAG,"rating <0");
     						voteEvent.vote(-1);
     					}
     					
     					groupListFiles.addFileToGroup(aux);
+    					Log.d(TAG,"After Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
+    					Log.d(TAG,"After Rat "+ratedFile.getName()+" "+ratedFile.getGroup()+" "+ratedFile.getRating());
     					voteEvent.setGroupAndFile(ratedFile.getGroup(),ratedFile.getName());
     					eventsGenerator.addEvent(voteEvent);
     					Log.d(TAG, "Launch Vote Event to "+ratedFile.getAddress());

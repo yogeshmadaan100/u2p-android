@@ -76,16 +76,16 @@ public class ItemFile implements Serializable{
 		return pos;
 	}
 
-	public void setPositives(int pos) {
-		this.pos = this.pos+pos;
+	public void setPositives() {
+		this.pos = this.pos+1;
 	}
 
 	public int getNegatives() {
 		return neg;
 	}
 
-	public void setNegatives(int neg) {
-		this.neg = this.neg+neg;
+	public void setNegatives() {
+		this.neg = this.neg+1;
 	}
 
 	public void setAddress(InetAddress address){

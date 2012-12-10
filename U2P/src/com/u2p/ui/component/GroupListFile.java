@@ -46,8 +46,9 @@ public class GroupListFile {
 				if(f.getName().equals(file.getName())){
 					Log.d("DB","equals");
 					auxFile = f;
+					break;
 				}
-				break;
+				
 			}
 			if(auxFile != null){
 				aux.remove(auxFile);
