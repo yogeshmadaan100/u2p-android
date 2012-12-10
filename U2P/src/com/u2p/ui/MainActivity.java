@@ -88,7 +88,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	Log.e(TAG,"No default user");
         	loginDialog();
         }
-        this.username=datasource.getUser(1).getUser();
+        this.username=datasource.getUser(0).getUser();
         this.refreshGroups();
         //Comunicaciones
 		mNsdHelper = new NsdHelper(this);
