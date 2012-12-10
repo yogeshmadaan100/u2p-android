@@ -27,8 +27,6 @@ public class ItemFile implements Serializable{
 		this.user = user;
 		this.size = size;
 		this.rating = rating;
-		this.pos=0;
-		this.neg=0;
 	}
 	
 	public ItemFile(long id, String rutaImagen, String name, String user,
