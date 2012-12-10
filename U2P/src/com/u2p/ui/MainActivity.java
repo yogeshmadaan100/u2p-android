@@ -382,6 +382,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			VoteEvent vote=(VoteEvent)e;
 			ItemFile aux=groupListFiles.getFile(vote.getGroup(),vote.getFile());
 			Log.d(TAG,"Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
+			Log.d(TAG,"Vot "+vote.getFile()+" "+vote.getGroup()+" "+vote.getVote());
 			
 			int vot=vote.getVote();
 			if(vot>0){
@@ -396,6 +397,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			final String group = vote.getGroup();
 			final ArrayList<ItemFile> filesToDraw = groupListFiles.getListFile(group);
 			Log.d(TAG,"After Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
+			Log.d(TAG,"After Vot "+vote.getFile()+" "+vote.getGroup()+" "+vote.getVote());
 			runOnUiThread(new Runnable() {
 				public void run() {
 					drawItems(group, filesToDraw);
