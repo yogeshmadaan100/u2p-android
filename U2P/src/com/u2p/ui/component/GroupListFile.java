@@ -35,14 +35,18 @@ public class GroupListFile {
 		return null;
 	}
 	
-	public void addFileToGroup(ItemFile file){
+	public synchronized void addFileToGroup(ItemFile file){
 		if(listGroup.containsKey(file.getGroup())){
 			List<ItemFile> aux=listGroup.get(file.getGroup());
+			ItemFile auxFile = null;
 			for(ItemFile f:aux){
-				if(f.getName().equals(file.getName())){
-					aux.remove(f);
-					aux.add(file);
-				}
+				if(f.getName().equals(file.getName()))
+					auxFile = f;
+				break;
+			}
+			if(auxFile != null){
+				aux.remove(auxFile);
+				aux.add(auxFile);
 			}
 		}
 	}
