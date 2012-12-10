@@ -18,7 +18,16 @@ public class GroupListFile {
 			listGroup.put(group, files);
 		}else{
 			List<ItemFile> aux=listGroup.get(group);
-			aux.addAll(files);
+			if(aux.size()!=0){
+				for(ItemFile i:aux){
+					for(ItemFile f:files){
+						if(!aux.contains(f))
+							aux.add(f);
+					}
+				}
+			}else{
+				aux.addAll(files);
+			}
 		}
 	}
 	
