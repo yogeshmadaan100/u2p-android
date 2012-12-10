@@ -9,37 +9,16 @@ import com.u2p.core.db.DbFile;
 public class ItemFile implements Serializable{
 
 	private static final long serialVersionUID = 8858451646619645528L;
-	protected long id;
+	private long id;
 	private int pos,neg;
-	protected String rutaImagen;
-	protected String name;
-	protected String user;
-	protected String size;
-	protected String rating;
+	private String rutaImagen;
+	private String name;
+	private String user;
+	private String size;
+	private String rating;
 	private String group;
 	private InetAddress address;
 	
-	public ItemFile(long id, String rutaImagen, String name, String user,
-			String size, String rating) {
-		this.id = id;
-		this.rutaImagen = rutaImagen;
-		this.name = name;
-		this.user = user;
-		this.size = size;
-		this.rating = rating;
-	}
-	
-	public ItemFile(long id, String rutaImagen, String name, String user,
-			String size, String rating,String group) {
-		this.id = id;
-		this.rutaImagen = rutaImagen;
-		this.name = name;
-		this.user = user;
-		this.size = size;
-		this.rating = rating;
-		this.group=group;
-	}
-
 
 	public ItemFile(DbFile file, String user, String rutaImagen){
 		this.id = file.getId();
@@ -55,20 +34,6 @@ public class ItemFile implements Serializable{
 		this.group=file.getGroup();
 	}
 	
-	public ItemFile(){
-		this.rutaImagen = "";
-		this.name="";
-		this.size="";
-		this.rating="";
-	}
-	
-	public ItemFile(long id, String rutaImagen, String name, String size, String rating) {
-		this.id = id;
-		this.rutaImagen = rutaImagen;
-		this.name = name;
-		this.size = size;
-		this.rating = rating;
-	}
 
 	public int getPositives() {
 		return pos;
@@ -137,7 +102,7 @@ public class ItemFile implements Serializable{
 	public String getRating() {
 		int total = pos+neg;
 		this.rating = Integer.toString(pos)+"/"+Integer.toString(total);
-		return rating;
+		return this.rating;
 	}
 
 	public void setRating(String rating) {
