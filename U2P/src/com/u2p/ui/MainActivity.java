@@ -376,6 +376,26 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 				}
 			});
 		}
+		if(e instanceof VoteEvent){
+			Log.d(TAG,"Receive VoteEvent");
+
+			VoteEvent vote=(VoteEvent)e;
+			ItemFile aux=groupListFiles.getFile(vote.getGroup(),vote.getFile());
+			Log.d(TAG,"Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
+			
+			int vot=vote.getVote();
+			if(vot>0){
+				Log.d(TAG,"rating >0");
+				aux.setPositives();
+			}else if(vot<0){
+				aux.setNegatives();
+				Log.d(TAG,"rating <0");
+			}
+			
+			groupListFiles.addFileToGroup(aux);
+			Log.d(TAG,"After Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
+			drawItems(vote.getGroup(),groupListFiles.getListFile(vote.getGroup()));			
+		}
 	}
 	
 	public void launchEventToClients(EventObject event){
