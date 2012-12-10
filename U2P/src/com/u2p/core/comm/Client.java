@@ -283,6 +283,7 @@ public class Client extends Thread implements ActivityEventsListener{
 						datasource.voteFile(vote.getGroup(),vote.getFile(),vote.getVote());
 						VoteEvent voteEvent=new VoteEvent(parent.getGenerator(),this.address);
 						voteEvent.setGroupAndFile(vote.getGroup(),vote.getFile());
+						voteEvent.vote(vote.getVote());
 						parent.getGenerator().addEvent(voteEvent);
 						continue;
 					}
