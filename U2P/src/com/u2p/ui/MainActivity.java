@@ -88,7 +88,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
         	Log.e(TAG,"No default user");
         	loginDialog();
         }
-        this.username=datasource.getUser(0).getUser();
+        
         this.refreshGroups();
         //Comunicaciones
 		mNsdHelper = new NsdHelper(this);
@@ -107,16 +107,18 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		
 		
 		List<String> groups=datasource.getAllGroups();
+		
 		for(String group:groups){
 			List<DbFile> list=datasource.getFilesGroup(group);
 			List<ItemFile> items=new ArrayList<ItemFile>();
+			this.username=datasource.getUser(1).getUser();
 			for(DbFile dbFile:list){
 				items.add(new ItemFile(dbFile,datasource.getUser(1).getUser(),datasource.getFileType(dbFile.getType())));
 			}
 			groupListFiles.addListFileToGroup(group, new ArrayList<ItemFile>(items));
 			drawItems(group,groupListFiles.getListFile(group));
 		}
-
+		
     }
     
     public void ToasIt(String message){
