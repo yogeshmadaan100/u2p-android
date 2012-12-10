@@ -54,7 +54,7 @@ public class FileDetailsActivity extends Activity {
         type.append(" "+strs[strs.length-1]);
         rating.append(" "+item.getRating());
         
-		int imageResource = getResources().getIdentifier(item.getRutaImagen(), null, getPackageName());
+		int imageResource = getResources().getIdentifier(item.getRutaImagen()+"_big", null, getPackageName());
         image.setImageDrawable(getResources().getDrawable(imageResource));
     }
 
