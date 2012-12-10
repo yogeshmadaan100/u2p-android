@@ -381,6 +381,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 
 			VoteEvent vote=(VoteEvent)e;
 			ItemFile aux=groupListFiles.getFile(vote.getGroup(),vote.getFile());
+			aux.setGroup(vote.getGroup());
 			Log.d(TAG,"Aux "+aux.getName()+" "+aux.getGroup()+" "+aux.getRating());
 			Log.d(TAG,"Vot "+vote.getFile()+" "+vote.getGroup()+" "+vote.getVote());
 			
