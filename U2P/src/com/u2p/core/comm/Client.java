@@ -279,6 +279,7 @@ public class Client extends Thread implements ActivityEventsListener{
 					if(aux instanceof VoteFile){
 						Log.d(TAG,"Received VoteFile message from "+address);
 						VoteFile vote=(VoteFile)aux;
+						Log.d(TAG, "Vote "+vote.getFile()+" group "+vote.getGroup()+" "+vote.getVote());
 						datasource.voteFile(vote.getGroup(),vote.getFile(),vote.getVote());
 						continue;
 					}

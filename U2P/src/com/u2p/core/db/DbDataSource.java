@@ -147,7 +147,6 @@ public class DbDataSource {
 	
 	public boolean voteFile(String group,String filename,int vote){
 		if(this.tableExist(group)){
-			int v=0;
 			ContentValues values=new ContentValues();
 			if(vote!=0){
 				if(vote>0){
