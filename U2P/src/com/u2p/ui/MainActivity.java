@@ -53,14 +53,17 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	private GroupListFile groupListFiles;
 	private ActivityEventsGenerator eventsGenerator;
 	private ActionBar actionBar;
+    public static final int PORT=2664;
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+
+    //Para comenzar activities y coger sus resultados
     private static final int ADD_FILES = 1;
     private static final int DOWNLOAD_FILE = 2;
     private static final String FILES_TO_UPLOAD = "upload";
     private static final String FILE_TO_DOWNLOAD = "download";
     private static final String RATING = "rating";
+    private static final String RATED_FILE = "voted";
     private static final String TAG="MainActivity";
-    public static final int PORT=2664;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -243,10 +246,13 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
     		Log.d(TAG, files.toString());
     	}else if(requestCode == DOWNLOAD_FILE && resultCode == RESULT_OK){
     		int rating = data.getIntExtra(RATING, 0);
-    		if(rating != 0)
-    			Log.d(TAG, "Rating +"+rating);
-    		else
+    		ItemFile ratedFile = (ItemFile) data.getSerializableExtra(RATED_FILE);
+    		if(rating != 0){
+    			Log.d(TAG, ratedFile.getName()+" was rated: +"+rating);
+    		}
+    		else{
     			Log.d(TAG, "File was not rated");
+    		}
     		
     		ItemFile item = (ItemFile) data.getSerializableExtra(FILE_TO_DOWNLOAD);
     		if(item != null){
@@ -273,7 +279,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Log.d(TAG, "User exists, create group");
 			user = datasource.getUser(1).getUser();
 		}else{
-			Log.d(TAG, "User does not existe, create user and group");
+			Log.d(TAG, "User does not exist, create user and group");
 			user = ((EditText) userView).getText().toString();
 		}
 		group=groupText.getText().toString();
@@ -300,7 +306,6 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			Log.i(TAG, "Cancel create initial group, closing application");
 			finish();
 		}
-		
 	}
 
 	public void handleServerEventsListener(EventObject e) {
@@ -333,17 +338,11 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 			
 			final String group = newGroup.getGroup();
 			final ArrayList<ItemFile> filesToDraw = groupListFiles.getListFile(group);
-			//drawItems(newGroup.getGroup(),groupListFiles.getListFile(newGroup.getGroup()));
-			/* Da CalledFromWrongThreadException: Only the original thread that created
-			 * a view hierarchy can touch its views.
-			 * O sea, solo podemos llamar a drawItems desde el main thread, es decir
-			 * el thread de la UI. Para eso usamos runOnUiThread */
 			runOnUiThread(new Runnable() {
 				public void run() {
 					drawItems(group, filesToDraw);
 				}
 			});
-			
 		}
 	}
 	
@@ -430,13 +429,8 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 	
 	@Override
 	protected void onPause() {
-		if (mNsdHelper != null && mNsdHelper.isDiscovering()) {
+		if (mNsdHelper != null && mNsdHelper.isDiscovering())
 			mNsdHelper.stopDiscovery();
-			if(mNsdHelper.isDiscovering())
-				Log.d(TAG,"OnPause(): no stop");
-			else
-				Log.d(TAG,"OnPause(): stop");
-		}
 		super.onPause();
 	}
 	
@@ -446,7 +440,7 @@ LoginDialogFragment.LoginDialogListener, ServerEventsListener{
 		Log.d(TAG,"OnDestroy(): close server");
 		if(mNsdHelper.isRegistered()){
 			mNsdHelper.tearDown();
-			Log.d(TAG,"OnDestroy(): tead down");
+			Log.d(TAG,"OnDestroy(): tear down");
 		}
 		if(mNsdHelper.isDiscovering()){
 			mNsdHelper.stopDiscovery();

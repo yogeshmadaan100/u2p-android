@@ -23,6 +23,7 @@ public class FileDetailsActivity extends Activity {
 	private static final String TAG = "FileDetailsActivity";
     private static final String FILE_TO_DOWNLOAD = "download";
     private static final String RATING = "rating";
+    private static final String RATED_FILE = "voted";
 	private ItemFile item;
 	private int rating = 0;
 	private Intent result;
@@ -66,8 +67,6 @@ public class FileDetailsActivity extends Activity {
     public void onImageClick(View v){
     	result.putExtra(FILE_TO_DOWNLOAD, item);
     	setResult(Activity.RESULT_OK, result);
-    	if(rating!=0)
-    		result.putExtra(RATING, rating);
     	Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
     	Log.d(TAG, "Download started");
     	finish();
@@ -83,11 +82,13 @@ public class FileDetailsActivity extends Activity {
             case R.id.rating_up:
             	rating = 1;
             	result.putExtra(RATING, rating);
+            	result.putExtra(RATED_FILE, this.item);
             	Toast.makeText(getApplicationContext(), "+1 in Intent", Toast.LENGTH_SHORT).show();
             	return true;
             case R.id.rating_bad:
             	rating = -1;
             	result.putExtra(RATING, rating);
+            	result.putExtra(RATED_FILE, this.item);
             	Toast.makeText(getApplicationContext(), "-1 in Intent", Toast.LENGTH_SHORT).show();
             	return true;
         }

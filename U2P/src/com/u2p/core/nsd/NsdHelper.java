@@ -118,8 +118,8 @@ public class NsdHelper {
 
             public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
                 mServiceName = NsdServiceInfo.getServiceName();
-                Toast.makeText(mContext, "Service registered",Toast.LENGTH_SHORT).show();
-                Log.d(TAG,"Service registered");
+                Toast.makeText(mContext, "Service registered: "+mServiceName,Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"Service registered: "+mServiceName);
                 setRegistered(true);
             }
             
