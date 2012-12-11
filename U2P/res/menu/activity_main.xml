@@ -1,8 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- SETTINGS 
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="never" /> -->
     
     <item android:id="@+id/add_group"
         android:icon="@drawable/social_add_group"
@@ -36,6 +38,6 @@
     
     <item android:id="@+id/register"
         android:onClick="registerService"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/createService"/>
 </menu>
